@@ -8,14 +8,21 @@ import dev.darkblade.playerfurnaces.model.VirtualFurnace;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class AdminCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class AdminCommand implements TabExecutor {
 
     private final PlayerFurnacesPlugin plugin;
+    private static final List<String> SUBCOMMANDS = List.of("reload", "view");
 
     public AdminCommand(PlayerFurnacesPlugin plugin) {
         this.plugin = plugin;
@@ -80,6 +87,36 @@ public class AdminCommand implements CommandExecutor {
 
         sendHelp(sender);
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!sender.hasPermission("playerfurnaces.admin")) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 1) {
+            return StringUtil.copyPartialMatches(args[0], SUBCOMMANDS, new ArrayList<>());
+        }
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("view")) {
+            List<String> playerNames = new ArrayList<>();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                playerNames.add(player.getName());
+            }
+            return StringUtil.copyPartialMatches(args[1], playerNames, new ArrayList<>());
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("view")) {
+            int max = plugin.getConfig().getInt("settings.default-furnace-count", 14);
+            List<String> validIds = new ArrayList<>();
+            for (int i = 1; i <= max; i++) {
+                validIds.add(String.valueOf(i));
+            }
+            return StringUtil.copyPartialMatches(args[2], validIds, new ArrayList<>());
+        }
+
+        return Collections.emptyList();
     }
 
     private void sendHelp(CommandSender sender) {

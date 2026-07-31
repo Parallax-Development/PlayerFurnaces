@@ -1,5 +1,5 @@
 name: PlayerFurnaces
-version: 1.0.0
+version: ${version}
 main: dev.darkblade.playerfurnaces.PlayerFurnacesPlugin
 api-version: '1.20'
 

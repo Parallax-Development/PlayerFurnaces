@@ -57,12 +57,16 @@ public class PlayerFurnacesPlugin extends JavaPlugin {
 
         PluginCommand furnaceCmd = getCommand("furnace");
         if (furnaceCmd != null) {
-            furnaceCmd.setExecutor(new PlayerFurnaceCommand(this));
+            PlayerFurnaceCommand executor = new PlayerFurnaceCommand(this);
+            furnaceCmd.setExecutor(executor);
+            furnaceCmd.setTabCompleter(executor);
         }
 
         PluginCommand adminCmd = getCommand("playerfurnacesadmin");
         if (adminCmd != null) {
-            adminCmd.setExecutor(new AdminCommand(this));
+            AdminCommand executor = new AdminCommand(this);
+            adminCmd.setExecutor(executor);
+            adminCmd.setTabCompleter(executor);
         }
 
         getLogger().info("PlayerFurnaces v" + getDescription().getVersion() + " has been successfully enabled!");
