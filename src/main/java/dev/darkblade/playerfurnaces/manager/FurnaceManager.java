@@ -6,8 +6,11 @@ import dev.darkblade.playerfurnaces.model.VirtualFurnace;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FurnaceManager {
@@ -52,11 +55,15 @@ public class FurnaceManager {
     }
 
     public void saveAll() {
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (Map<Integer, VirtualFurnace> map : cache.values()) {
             for (VirtualFurnace f : map.values()) {
                 FurnaceEngine.updateFurnaceState(f);
-                plugin.getDatabaseManager().saveFurnace(f);
+                futures.add(plugin.getDatabaseManager().saveFurnace(f));
             }
+        }
+        if (!futures.isEmpty()) {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         }
     }
 
