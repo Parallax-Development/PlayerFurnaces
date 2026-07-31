@@ -1,0 +1,3 @@
+hyper_coal: # Fuel identifier. Can be referenced in recipes under 'fuel.type'.
+  type: "COAL" # Base material or provider identifier (e.g. 'oraxen:hyper_coal' or 'COAL')
+  burn-time-ticks: 1000 # Burn duration in ticks (20 ticks = 1 second)

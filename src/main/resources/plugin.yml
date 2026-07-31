@@ -1,0 +1,31 @@
+name: PlayerFurnaces
+version: 1.0.0
+main: dev.darkblade.playerfurnaces.PlayerFurnacesPlugin
+api-version: '1.20'
+
+author: DarkBladeDev
+description: Virtual player furnaces inspired by AxVaults.
+
+commands:
+  furnace:
+    description: Opens your virtual furnaces menu.
+    aliases: [furnaces, horno, hornos, pf]
+    permission: playerfurnaces.command.use
+  playerfurnacesadmin:
+    description: Administrative commands for PlayerFurnaces.
+    aliases: [pfadmin, furnacesadmin]
+    permission: playerfurnaces.admin
+
+permissions:
+  playerfurnaces.command.use:
+    description: Allows opening the furnace menu.
+    default: true
+  playerfurnaces.admin:
+    description: Access to administrative commands.
+    default: op
+  playerfurnaces.furnace.1:
+    description: Access to furnace #1
+    default: true
+  playerfurnaces.furnace.2:
+    description: Access to furnace #2
+    default: true

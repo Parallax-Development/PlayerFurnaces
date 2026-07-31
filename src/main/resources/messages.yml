@@ -1,0 +1,11 @@
+prefix: "&8[&ePlayerFurnaces&8] "
+no-permission: "&cYou do not have permission to perform this action."
+no-furnace-permission: "&cYou do not have permission to access Furnace #{id}."
+furnace-not-found: "&cThe specified furnace does not exist or is unavailable."
+player-not-found: "&cThe player was not found or their data has not loaded."
+reload-success: "&aConfiguration and messages successfully reloaded!"
+collect-success: "&aProcessed items collected successfully!"
+admin-help:
+  - "&e&lPlayerFurnaces Admin Commands:"
+  - "&f/pfadmin view <player> <id> &7- View a player's furnace"
+  - "&f/pfadmin reload &7- Reload configuration and recipes"

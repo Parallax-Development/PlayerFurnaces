@@ -1,0 +1,21 @@
+crafthorim_ruby_smelt: # Unique recipe ID.
+  input:
+    id: ruby_ore # For items without third-party plugins, specifying an ID and material is sufficient.
+    material: REDSTONE_ORE
+    name: "<red>Ruby Ore" # Supports color codes with '&', Hex, and MiniMessage
+    lore:
+      - ""
+      - "<gray><b>Material" # Supports color codes with '&', Hex, and MiniMessage
+    custom-model-data: 1005
+    pdc:
+      "myplugin:item_id": "ruby_ore" # Useful for storing data on items without changing base behavior.
+  result:
+    # Imported directly from Craftorithm
+    id: "crafthorim:ruby_ingot" # When importing from another plugin, 'material' or 'display-name' are omitted.
+    amount: 1
+  cook-time-ticks: 100 # Cooking duration in ticks (20 ticks = 1 second)
+  experience: 2.5 # Experience awarded upon smelting
+
+fuel:
+  type: "hyper_coal" # References custom fuel defined in fuels/hyper_coal.yml (or external plugins)
+  burn-time-ticks: 1000 # Optional override for burn duration in ticks (20 ticks = 1 second)

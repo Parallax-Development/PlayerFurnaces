@@ -1,0 +1,13 @@
+database:
+  # Available options: SQLITE, H2
+  type: SQLITE
+  file: furnaces.db
+
+settings:
+  default-furnace-count: 14
+  max-furnace-count: 54
+  gui-refresh-ticks: 10
+
+gui:
+  hub-title: "&8{player}'s Furnaces"
+  furnace-title: "&8Furnace #{id} - {status}"

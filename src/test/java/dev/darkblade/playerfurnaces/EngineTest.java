@@ -1,0 +1,38 @@
+package dev.darkblade.playerfurnaces;
+
+import dev.darkblade.playerfurnaces.model.FurnaceStatus;
+import dev.darkblade.playerfurnaces.model.VirtualFurnace;
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class EngineTest {
+
+    @Test
+    public void testVirtualFurnaceModelAndStatus() {
+        UUID owner = UUID.randomUUID();
+        VirtualFurnace furnace = new VirtualFurnace(owner, 1);
+
+        assertEquals(owner, furnace.getOwnerUuid());
+        assertEquals(1, furnace.getFurnaceId());
+        assertEquals(FurnaceStatus.IDLE, furnace.getStatus());
+
+        furnace.setBurnTime(200);
+        furnace.setCookTime(0);
+        assertEquals(FurnaceStatus.IDLE, furnace.getStatus());
+    }
+
+    @Test
+    public void testTimestampDeltaTracking() {
+        UUID owner = UUID.randomUUID();
+        VirtualFurnace furnace = new VirtualFurnace(owner, 2);
+
+        long initialTime = furnace.getLastUpdatedTimestamp();
+        assertTrue(initialTime > 0);
+
+        furnace.setLastUpdatedTimestamp(initialTime - 10000);
+        assertEquals(initialTime - 10000, furnace.getLastUpdatedTimestamp());
+    }
+}
