@@ -32,14 +32,14 @@
                                       ▼
     ┌──────────────────────────────────────────────────────────────────┐
     │                    VIRTUAL FURNACE HUB                           │
-    │  [Furnace #1] [Furnace #2] [Furnace #3] ... [Furnace #14] (Up 54) │
+    │  [Furnace #1] [Furnace #2] [Furnace #3] ... [Furnace #14] (Up 54)│
     └─────────────────────────────────┬────────────────────────────────┘
                                       │ (Click Furnace)
                                       ▼
     ┌──────────────────────────────────────────────────────────────────┐
     │                   VIRTUAL FURNACE INTERFACE                      │
-    │  [ Inputs ] ➔ ⚡ [ Progress % ] ➔ [ Processed Outputs ]           │
-    │  [ Active Fuel (s) ]             [ 📦 Collect All ]              │
+    │  [ Inputs ] ➔ ⚡ [ Progress % ] ➔ [ Processed Outputs ]        │
+    │  [ Active Fuel (s) ]             [ 📦 Collect All ]              |
     └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -86,8 +86,8 @@ The plugin is designed with a modular, reactive architecture:
                                                                    │
                                                                    ▼
   ┌──────────────────┐      ┌────────────────────┐      ┌──────────────────────┐
-  │ ItemProvider     │ ◄─── │  RecipeManager &   │ ◄─── │   DatabaseManager    │
-  │ Registry         │      │  FuelManager       │      │   (HikariCP/SQLite/H2)│
+  │ ItemProvider     │ ◄─── │  RecipeManager &   │ ◄─── │  DatabaseManager     │
+  │ Registry         │      │  FuelManager       │      │  (HikariCP/SQLite/H2)│
   └──────────────────┘      └────────────────────┘      └──────────────────────┘
 ```
 
@@ -130,15 +130,15 @@ The plugin is designed with a modular, reactive architecture:
 
 ## 📚 Documentation & Wiki
 
-For detailed guides, syntax breakdowns, and integration manuals, visit our official **Wiki** in the [`docs/`](file:///c:/Users/antua/OneDrive/Documentos/Programming/JAVA/PLUGINS/PlayerFurnaces/docs) directory:
+For detailed guides, syntax breakdowns, and integration manuals, visit our official **Wiki** in the [`docs/`](docs) directory:
 
-* 📘 [Wiki Index](file:///c:/Users/antua/OneDrive/Documentos/Programming/JAVA/PLUGINS/PlayerFurnaces/docs/README.md)
-* ⚙️ [Configuration Manual (`config.yml` & `messages.yml`)](file:///c:/Users/antua/OneDrive/Documentos/Programming/JAVA/PLUGINS/PlayerFurnaces/docs/Configuration.md)
-* 🧪 [Custom Recipes Guide (`recipes/*.yml`)](file:///c:/Users/antua/OneDrive/Documentos/Programming/JAVA/PLUGINS/PlayerFurnaces/docs/Custom-Recipes.md)
-* 🔥 [Custom Fuels Guide (`fuels/*.yml`)](file:///c:/Users/antua/OneDrive/Documentos/Programming/JAVA/PLUGINS/PlayerFurnaces/docs/Custom-Fuels.md)
-* 🧩 [External Plugin Integration & ItemProvider API](file:///c:/Users/antua/OneDrive/Documentos/Programming/JAVA/PLUGINS/PlayerFurnaces/docs/External-Item-Providers.md)
-* 🔑 [Commands & Permissions Reference](file:///c:/Users/antua/OneDrive/Documentos/Programming/JAVA/PLUGINS/PlayerFurnaces/docs/Commands-and-Permissions.md)
-* 💾 [Database & Storage (SQLite / H2)](file:///c:/Users/antua/OneDrive/Documentos/Programming/JAVA/PLUGINS/PlayerFurnaces/docs/Database-and-Storage.md)
+* 📘 [Wiki Index](docs/README.md)
+* ⚙️ [Configuration Manual (`config.yml` & `messages.yml`)](docs/Configuration.md)
+* 🧪 [Custom Recipes Guide (`recipes/*.yml`)](docs/Custom-Recipes.md)
+* 🔥 [Custom Fuels Guide (`fuels/*.yml`)](docs/Custom-Fuels.md)
+* 🧩 [External Plugin Integration & ItemProvider API](docs/External-Item-Providers.md)
+* 🔑 [Commands & Permissions Reference](docs/Commands-and-Permissions.md)
+* 💾 [Database & Storage (SQLite / H2)](docs/Database-and-Storage.md)
 
 ---
 *Built with ❤️ for high-performance Minecraft communities.*
