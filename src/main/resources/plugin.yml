@@ -13,7 +13,7 @@ commands:
     permission: playerfurnaces.command.use
   playerfurnacesadmin:
     description: Administrative commands for PlayerFurnaces.
-    aliases: [pfadmin, furnacesadmin]
+    aliases: [pfadmin, pfa, furnacesadmin]
     permission: playerfurnaces.admin
 
 permissions:
