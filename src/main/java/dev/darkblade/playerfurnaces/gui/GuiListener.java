@@ -3,7 +3,6 @@ package dev.darkblade.playerfurnaces.gui;
 import dev.darkblade.playerfurnaces.PlayerFurnacesPlugin;
 import dev.darkblade.playerfurnaces.engine.FurnaceEngine;
 import dev.darkblade.playerfurnaces.model.VirtualFurnace;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,7 +37,7 @@ public class GuiListener implements Listener {
                 Player target = hubGui.getTargetOwner();
 
                 if (!plugin.getFurnaceManager().hasPermissionForFurnace(target, furnaceId)) {
-                    player.sendMessage(ChatColor.RED + "No tienes permiso para acceder al Horno #" + furnaceId);
+                    plugin.getMessageManager().sendMessage(player, "no-furnace-permission", "{id}", String.valueOf(furnaceId));
                     return;
                 }
 
@@ -133,10 +132,10 @@ public class GuiListener implements Listener {
             Map<Integer, ItemStack> leftover = player.getInventory().addItem(output);
             if (leftover.isEmpty()) {
                 furnace.setOutputItem(null);
-                player.sendMessage(ChatColor.GREEN + "¡Has recogido los ítems procesados!");
+                plugin.getMessageManager().sendMessage(player, "collection.success");
             } else {
                 furnace.setOutputItem(leftover.get(0));
-                player.sendMessage(ChatColor.YELLOW + "Se recogió parte de la producción (inventario lleno).");
+                plugin.getMessageManager().sendMessage(player, "collection.partial");
             }
         }
     }

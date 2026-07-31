@@ -7,6 +7,7 @@ import dev.darkblade.playerfurnaces.gui.GuiListener;
 import dev.darkblade.playerfurnaces.listener.PlayerListener;
 import dev.darkblade.playerfurnaces.manager.FuelManager;
 import dev.darkblade.playerfurnaces.manager.FurnaceManager;
+import dev.darkblade.playerfurnaces.manager.MessageManager;
 import dev.darkblade.playerfurnaces.manager.RecipeManager;
 import dev.darkblade.playerfurnaces.provider.ItemResolverRegistry;
 import dev.darkblade.playerfurnaces.provider.impl.CraftorithmItemProvider;
@@ -25,12 +26,15 @@ public class PlayerFurnacesPlugin extends JavaPlugin {
     private ItemResolverRegistry itemResolverRegistry;
     private RecipeManager recipeManager;
     private FuelManager fuelManager;
+    private MessageManager messageManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
         saveDefaultRecipesAndFuels();
+
+        this.messageManager = new MessageManager(this);
 
         this.itemResolverRegistry = new ItemResolverRegistry();
         this.itemResolverRegistry.registerProvider(new VanillaItemProvider());
@@ -119,5 +123,9 @@ public class PlayerFurnacesPlugin extends JavaPlugin {
 
     public FuelManager getFuelManager() {
         return fuelManager;
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 }

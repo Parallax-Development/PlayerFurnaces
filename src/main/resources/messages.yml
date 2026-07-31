@@ -3,9 +3,64 @@ no-permission: "&cYou do not have permission to perform this action."
 no-furnace-permission: "&cYou do not have permission to access Furnace #{id}."
 furnace-not-found: "&cThe specified furnace does not exist or is unavailable."
 player-not-found: "&cThe player was not found or their data has not loaded."
+player-offline: "&cPlayer {player} is not online."
 reload-success: "&aConfiguration and messages successfully reloaded!"
 collect-success: "&aProcessed items collected successfully!"
+only-players: "&cThis command can only be executed by a player."
+furnace-id-invalid: "&cFurnace ID must be a number between 1 and {max}."
+usage-furnace: "&cUsage: /furnace [id]"
+usage-admin-view: "&cUsage: /pfadmin view <player> [id]"
+admin-furnace-id-number: "&cFurnace ID must be an integer."
 admin-help:
   - "&e&lPlayerFurnaces Admin Commands:"
-  - "&f/pfadmin view <player> <id> &7- View a player's furnace"
+  - "&f/pfadmin view <player> [id] &7- View a player's furnace"
   - "&f/pfadmin reload &7- Reload configuration and recipes"
+
+collection:
+  success: "&aSuccessfully collected processed items!"
+  partial: "&eCollected partial production (inventory is full)."
+
+gui:
+  hub:
+    title: "&8{player}'s Furnaces"
+    locked:
+      name: "&cFurnace #{id} (Locked)"
+      lore:
+        - "&7Requires permission: &eplayerfurnaces.furnace.{id}"
+    smelting:
+      name: "&aFurnace #{id} (Smelting)"
+      lore:
+        - "&7Status: &a🟢 Smelting..."
+        - "&7Processing: &f{item} x{amount}"
+        - "&7Fuel: &e{time}s remaining"
+        - ""
+        - "&e▶ Click to open this furnace"
+    no-fuel:
+      name: "&cFurnace #{id} (Out of Fuel)"
+      lore:
+        - "&7Status: &c🔴 Fuel required"
+        - ""
+        - "&e▶ Click to open this furnace"
+    idle:
+      name: "&eFurnace #{id} (Idle)"
+      lore:
+        - "&7Status: &7⏸ Ready to use"
+        - ""
+        - "&e▶ Click to open this furnace"
+
+  furnace:
+    title: "&8Furnace #{id}"
+    progress:
+      active: "&aProgress: {pct}%"
+      waiting: "&7Waiting..."
+    fuel-indicator:
+      active-name: "&6Active Fuel"
+      active-lore:
+        - "&eRemaining time: {time}s"
+      inactive-name: "&cNo Active Fuel"
+    collect-button:
+      name: "&aCollect All"
+      lore:
+        - "&7Click to collect processed items."
+    back-button:
+      name: "&eReturn to Main Menu"

@@ -5,7 +5,6 @@ import dev.darkblade.playerfurnaces.engine.FurnaceEngine;
 import dev.darkblade.playerfurnaces.model.FurnaceStatus;
 import dev.darkblade.playerfurnaces.model.VirtualFurnace;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -13,7 +12,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FurnaceHubGui implements InventoryHolder {
@@ -27,8 +25,7 @@ public class FurnaceHubGui implements InventoryHolder {
         this.plugin = plugin;
         this.viewer = viewer;
         this.targetOwner = targetOwner;
-        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("gui.hub-title", "&8Hornos de {player}")
-                .replace("{player}", targetOwner.getName()));
+        String title = plugin.getMessageManager().getMessage("gui.hub.title", false, "{player}", targetOwner.getName());
         this.inventory = Bukkit.createInventory(this, 54, title);
         refresh();
     }
@@ -44,45 +41,49 @@ public class FurnaceHubGui implements InventoryHolder {
 
             ItemStack icon;
             ItemMeta meta;
-            List<String> lore = new ArrayList<>();
+            List<String> lore;
 
             if (!hasPerm) {
                 icon = new ItemStack(Material.RED_STAINED_GLASS_PANE);
                 meta = icon.getItemMeta();
-                meta.setDisplayName(ChatColor.RED + "Horno #" + i + " (Bloqueado)");
-                lore.add(ChatColor.GRAY + "Requiere permiso: " + ChatColor.YELLOW + "playerfurnaces.furnace." + i);
+                meta.setDisplayName(plugin.getMessageManager().getMessage("gui.hub.locked.name", false, "{id}", String.valueOf(i)));
+                lore = plugin.getMessageManager().getMessageList("gui.hub.locked.lore", "{id}", String.valueOf(i));
             } else {
                 FurnaceStatus status = furnace.getStatus();
+                String itemType = furnace.getInputItem() != null ? furnace.getInputItem().getType().name() : "Air";
+                String itemAmount = furnace.getInputItem() != null ? String.valueOf(furnace.getInputItem().getAmount()) : "0";
+                String remainingTime = String.valueOf(furnace.getBurnTime() / 20);
+
                 switch (status) {
                     case SMELTING -> {
                         icon = new ItemStack(Material.BLAST_FURNACE);
                         meta = icon.getItemMeta();
-                        meta.setDisplayName(ChatColor.GREEN + "Horno #" + i + " (Cocinando)");
-                        lore.add(ChatColor.GRAY + "Estado: " + ChatColor.GREEN + "🟢 Fundiendo...");
-                        if (furnace.getInputItem() != null) {
-                            lore.add(ChatColor.GRAY + "Procesando: " + ChatColor.WHITE + furnace.getInputItem().getType().name() + " x" + furnace.getInputItem().getAmount());
-                        }
-                        lore.add(ChatColor.GRAY + "Combustible: " + ChatColor.YELLOW + (furnace.getBurnTime() / 20) + "s restantes");
+                        meta.setDisplayName(plugin.getMessageManager().getMessage("gui.hub.smelting.name", false, "{id}", String.valueOf(i)));
+                        lore = plugin.getMessageManager().getMessageList("gui.hub.smelting.lore",
+                                "{id}", String.valueOf(i),
+                                "{item}", itemType,
+                                "{amount}", itemAmount,
+                                "{time}", remainingTime);
                     }
                     case NO_FUEL -> {
                         icon = new ItemStack(Material.FURNACE);
                         meta = icon.getItemMeta();
-                        meta.setDisplayName(ChatColor.RED + "Horno #" + i + " (Sin Combustible)");
-                        lore.add(ChatColor.GRAY + "Estado: " + ChatColor.RED + "🔴 Requiere combustible");
+                        meta.setDisplayName(plugin.getMessageManager().getMessage("gui.hub.no-fuel.name", false, "{id}", String.valueOf(i)));
+                        lore = plugin.getMessageManager().getMessageList("gui.hub.no-fuel.lore", "{id}", String.valueOf(i));
                     }
                     default -> {
                         icon = new ItemStack(Material.FURNACE);
                         meta = icon.getItemMeta();
-                        meta.setDisplayName(ChatColor.YELLOW + "Horno #" + i + " (Inactivo)");
-                        lore.add(ChatColor.GRAY + "Estado: " + ChatColor.GRAY + "⏸️ Listo para usar");
+                        meta.setDisplayName(plugin.getMessageManager().getMessage("gui.hub.idle.name", false, "{id}", String.valueOf(i)));
+                        lore = plugin.getMessageManager().getMessageList("gui.hub.idle.lore", "{id}", String.valueOf(i));
                     }
                 }
-                lore.add("");
-                lore.add(ChatColor.YELLOW + "▶ Haz clic para abrir este horno");
             }
 
-            meta.setLore(lore);
-            icon.setItemMeta(meta);
+            if (meta != null) {
+                meta.setLore(lore);
+                icon.setItemMeta(meta);
+            }
             inventory.setItem(i - 1, icon);
         }
     }
