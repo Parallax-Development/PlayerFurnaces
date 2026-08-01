@@ -54,6 +54,7 @@ public class RecipeManager {
         File[] files = recipesDir.listFiles((dir, name) -> name.endsWith(".yml") || name.endsWith(".yaml"));
         if (files == null) return;
 
+        int skippedCount = 0;
         for (File file : files) {
             try {
                 YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
@@ -63,23 +64,30 @@ public class RecipeManager {
                     }
                     ConfigurationSection section = config.getConfigurationSection(rootKey);
                     if (section != null && section.contains("input")) {
-                        CustomRecipe recipe = parseRecipe(rootKey, section, config);
+                        CustomRecipe recipe = parseRecipe(rootKey, section, config, file.getName());
                         if (recipe != null) {
                             recipes.add(recipe);
+                        } else {
+                            skippedCount++;
                         }
                     }
                 }
             } catch (Exception e) {
+                skippedCount++;
                 plugin.getLogger().warning("Error loading recipe file: " + file.getName() + " -> " + e.getMessage());
             }
         }
-        plugin.getLogger().info("Loaded " + recipes.size() + " custom furnace recipe overrides.");
+        if (skippedCount > 0) {
+            plugin.getLogger().info("Loaded " + recipes.size() + " custom furnace recipe overrides (" + skippedCount + " skipped due to configuration errors).");
+        } else {
+            plugin.getLogger().info("Loaded " + recipes.size() + " custom furnace recipe overrides.");
+        }
     }
 
-    private CustomRecipe parseRecipe(String recipeId, ConfigurationSection section, YamlConfiguration fileConfig) {
+    private CustomRecipe parseRecipe(String recipeId, ConfigurationSection section, YamlConfiguration fileConfig, String fileName) {
         boolean disabled = section.getBoolean("disabled", false);
-        RecipeItemDefinition input = parseItemDef(section.getConfigurationSection("input"));
-        RecipeItemDefinition result = parseItemDef(section.getConfigurationSection("result"));
+        RecipeItemDefinition input = parseItemDef(section.getConfigurationSection("input"), "input", recipeId, fileName);
+        RecipeItemDefinition result = parseItemDef(section.getConfigurationSection("result"), "result", recipeId, fileName);
 
         if (input == null || (!disabled && result == null)) {
             return null;
@@ -98,6 +106,10 @@ public class RecipeManager {
 
         if (fuelSection != null) {
             fuelType = fuelSection.getString("type");
+            if (fuelType != null && !validateTypeIdentifier(fuelType)) {
+                plugin.getLogger().warning("In '" + fileName + "' (recipe '" + recipeId + "'): fuel type '" + fuelType + "' is not a valid material or registered item provider.");
+                return null;
+            }
             if (fuelSection.contains("burn-time-ticks")) {
                 fuelBurnTicks = fuelSection.getInt("burn-time-ticks");
             }
@@ -106,11 +118,45 @@ public class RecipeManager {
         return new CustomRecipe(recipeId, input, result, cookTime, exp, fuelType, fuelBurnTicks, disabled);
     }
 
-    private RecipeItemDefinition parseItemDef(ConfigurationSection sec) {
-        if (sec == null) return null;
+    private RecipeItemDefinition parseItemDef(ConfigurationSection sec, String sectionName, String recipeId, String fileName) {
+        if (sec == null) {
+            plugin.getLogger().warning("In '" + fileName + "' (recipe '" + recipeId + "'): missing '" + sectionName + "' section.");
+            return null;
+        }
         String id = sec.getString("id");
         String matStr = sec.getString("material");
-        Material mat = matStr != null ? Material.matchMaterial(matStr) : null;
+
+        if ((id == null || id.trim().isEmpty()) && (matStr == null || matStr.trim().isEmpty())) {
+            plugin.getLogger().warning("In '" + fileName + "' (recipe '" + recipeId + "'): section '" + sectionName + "' must specify either 'material' or 'id'.");
+            return null;
+        }
+
+        Material mat = null;
+        if (matStr != null && !matStr.trim().isEmpty()) {
+            mat = Material.matchMaterial(matStr.trim());
+            if (mat == null) {
+                plugin.getLogger().warning("In '" + fileName + "' (recipe '" + recipeId + "'): section '" + sectionName + ".material' specified invalid material '" + matStr + "'.");
+                return null;
+            }
+        }
+
+        if (id != null && !id.trim().isEmpty()) {
+            String trimmedId = id.trim();
+            if (trimmedId.contains(":")) {
+                String namespace = trimmedId.split(":", 2)[0].trim();
+                if (itemResolverRegistry != null && itemResolverRegistry.getProvider(namespace) == null) {
+                    plugin.getLogger().warning("In '" + fileName + "' (recipe '" + recipeId + "'): section '" + sectionName + ".id' uses unknown or unregistered provider namespace '" + namespace + "' in id '" + trimmedId + "'.");
+                    return null;
+                }
+            } else if (mat == null) {
+                mat = Material.matchMaterial(trimmedId);
+                if (mat == null) {
+                    plugin.getLogger().warning("In '" + fileName + "' (recipe '" + recipeId + "'): section '" + sectionName + ".id' specified invalid material '" + trimmedId + "'.");
+                    return null;
+                }
+            }
+        }
+
         String name = sec.getString("name");
         List<String> lore = sec.getStringList("lore");
         Integer cmd = sec.contains("custom-model-data") ? sec.getInt("custom-model-data") : null;
@@ -125,6 +171,18 @@ public class RecipeManager {
         }
 
         return new RecipeItemDefinition(id, mat, name, lore, cmd, pdcMap, amount);
+    }
+
+    private boolean validateTypeIdentifier(String typeStr) {
+        if (typeStr == null || typeStr.trim().isEmpty()) {
+            return false;
+        }
+        String trimmed = typeStr.trim();
+        if (trimmed.contains(":")) {
+            String namespace = trimmed.split(":", 2)[0].trim();
+            return itemResolverRegistry != null && itemResolverRegistry.getProvider(namespace) != null;
+        }
+        return Material.matchMaterial(trimmed) != null;
     }
 
     public CustomRecipe findMatchingRecipe(ItemStack input) {

@@ -32,6 +32,7 @@ public class FuelManager {
         File[] files = fuelsDir.listFiles((dir, name) -> name.endsWith(".yml") || name.endsWith(".yaml"));
         if (files == null) return;
 
+        int skippedCount = 0;
         for (File file : files) {
             try {
                 YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
@@ -39,15 +40,45 @@ public class FuelManager {
                     ConfigurationSection section = config.getConfigurationSection(rootKey);
                     if (section != null && section.contains("type") && section.contains("burn-time-ticks")) {
                         String type = section.getString("type");
+                        if (!isValidFuelType(type, rootKey, file.getName())) {
+                            skippedCount++;
+                            continue;
+                        }
                         int burnTicks = section.getInt("burn-time-ticks", 1600);
                         fuels.put(rootKey, new CustomFuel(rootKey, type, burnTicks));
                     }
                 }
             } catch (Exception e) {
+                skippedCount++;
                 plugin.getLogger().warning("Error loading fuel file: " + file.getName() + " -> " + e.getMessage());
             }
         }
-        plugin.getLogger().info("Loaded " + fuels.size() + " custom global furnace fuels.");
+        if (skippedCount > 0) {
+            plugin.getLogger().info("Loaded " + fuels.size() + " custom global furnace fuels (" + skippedCount + " skipped due to configuration errors).");
+        } else {
+            plugin.getLogger().info("Loaded " + fuels.size() + " custom global furnace fuels.");
+        }
+    }
+
+    private boolean isValidFuelType(String typeStr, String fuelKey, String fileName) {
+        if (typeStr == null || typeStr.trim().isEmpty()) {
+            plugin.getLogger().warning("In '" + fileName + "' (fuel '" + fuelKey + "'): missing or empty fuel type.");
+            return false;
+        }
+        String trimmed = typeStr.trim();
+        if (trimmed.contains(":")) {
+            String namespace = trimmed.split(":", 2)[0].trim();
+            if (itemResolverRegistry != null && itemResolverRegistry.getProvider(namespace) == null) {
+                plugin.getLogger().warning("In '" + fileName + "' (fuel '" + fuelKey + "'): uses unknown or unregistered provider namespace '" + namespace + "' in type '" + trimmed + "'.");
+                return false;
+            }
+            return true;
+        }
+        if (org.bukkit.Material.matchMaterial(trimmed) == null) {
+            plugin.getLogger().warning("In '" + fileName + "' (fuel '" + fuelKey + "'): specified invalid material '" + trimmed + "'.");
+            return false;
+        }
+        return true;
     }
 
     public CustomFuel findMatchingFuel(ItemStack fuelStack) {
