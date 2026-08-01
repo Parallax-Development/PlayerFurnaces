@@ -8,7 +8,9 @@ PlayerFurnaces features an extensible architecture called **`ItemResolverRegistr
 
 When a custom recipe or fuel specifies an item using the format:
 
-$$\text{namespace}:\text{item\_id}$$
+```text
+namespace:item_id
+```
 
 *(For example: `crafthorim:ruby_ingot` or `oraxen:mythic_coal`)*
 
