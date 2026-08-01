@@ -86,3 +86,45 @@ fuel:
 
 * **`type`**: Can be a custom fuel identifier (`hyper_coal`), a vanilla material (`COAL`, `LAVA_BUCKET`), or a namespaced provider item (`crafthorim:solar_fuel`).
 * **`burn-time-ticks`**: (Optional) If defined, overrides the standard fuel burn time whenever this specific recipe is smelting.
+
+---
+
+## 🚫 Vanilla Recipe Overrides & Disabling
+
+PlayerFurnaces allows server administrators to override or disable vanilla Minecraft smelting recipes:
+
+### 1. Overriding Vanilla Recipes
+Any custom recipe defined in `recipes/*.yml` that matches a vanilla input material (e.g., `RAW_IRON`) takes precedence over standard Minecraft recipes. You can customize the result, cooking time, experience, or fuel requirement:
+
+```yaml
+custom_iron_smelting:
+  input:
+    material: RAW_IRON
+  result:
+    material: IRON_INGOT
+    amount: 2                  # Yields 2 ingots instead of 1
+  cook-time-ticks: 100         # Smelts in 5 seconds instead of 10
+```
+
+### 2. Disabling Specific Vanilla Items via Recipe YML (`disabled: true`)
+You can modularly disable smelting for a specific item by setting `disabled: true` on a recipe entry:
+
+```yaml
+disable_porkchop:
+  input:
+    material: PORKCHOP
+  disabled: true              # Disables smelting for raw porkchops in custom furnaces
+```
+
+### 3. Global & Material Blacklist Controls (`config.yml`)
+Vanilla smelting fallbacks can also be managed globally in `config.yml`:
+
+```yaml
+recipes:
+  vanilla-smelting:
+    enabled: false             # Set to false to disable ALL vanilla smelting recipes
+    disabled-materials:       # Or disable specific vanilla materials
+      - RAW_IRON
+      - ANCIENT_DEBRIS
+```
+

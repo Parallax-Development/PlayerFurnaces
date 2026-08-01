@@ -60,8 +60,10 @@
   * **Locked** (`RED_STAINED_GLASS_PANE`): Displays the required permission node to unlock.
 * ⚡ **Intelligent Offline Smelting**: Furnaces automatically calculate elapsed time (delta-time) upon reopening the menu or reconnecting, ensuring production never stalls.
 * 📦 **Anti-Dupe Item Persistence (Intact NBT/PDC)**: Binary database storage (**SQLite** or **H2**) powered by HikariCP. Preserves Custom Model Data, lore, custom names, Hex/MiniMessage colors, and PDC data without item duplication risks.
-* 🧪 **Modular Custom Recipes (`recipes/*.yml`)**:
-  * Override vanilla recipes or create custom ones.
+* 🧪 **Modular Custom Recipes & Vanilla Controls (`recipes/*.yml` & `config.yml`)**:
+  * Override vanilla recipes or create completely custom recipes.
+  * Globally toggle vanilla smelting fallback (`recipes.vanilla-smelting.enabled`) or blacklist specific materials (`disabled-materials`).
+  * Modularly disable specific items via recipe files (`disabled: true`).
   * Define input/output items, cooking time (`cook-time-ticks`), experience payout, and recipe-specific fuel constraints.
 * 🔥 **Custom Fuel Definitions (`fuels/*.yml`)**:
   * Register global custom fuels with custom burn durations (`burn-time-ticks`).

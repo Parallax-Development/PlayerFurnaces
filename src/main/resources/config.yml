@@ -11,3 +11,11 @@ settings:
 gui:
   hub-title: "&8{player}'s Furnaces"
   furnace-title: "&8Furnace #{id} - {status}"
+
+recipes:
+  vanilla-smelting:
+    # Set to false to disable all vanilla Bukkit smelting recipes in custom furnaces.
+    enabled: true
+    # List of vanilla materials that cannot be smelted (only applies when enabled is true).
+    disabled-materials: []
+

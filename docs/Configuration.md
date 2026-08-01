@@ -29,6 +29,15 @@ gui:
   hub-title: "&8{player}'s Furnaces"
   # Title of an individual furnace interface
   furnace-title: "&8Furnace #{id} - {status}"
+
+recipes:
+  vanilla-smelting:
+    # Set to false to disable all vanilla Bukkit smelting recipes in custom furnaces.
+    enabled: true
+    # List of vanilla materials that cannot be smelted (only applies when enabled is true).
+    disabled-materials:
+      - RAW_IRON
+      - ANCIENT_DEBRIS
 ```
 
 ### 🔍 Parameter Breakdown
@@ -42,6 +51,8 @@ gui:
 | `settings.gui-refresh-ticks` | Integer | Visual refresh frequency for open GUI inventories. | `10` |
 | `gui.hub-title` | String | Hub inventory title. Supports the `{player}` placeholder. | `&8{player}'s Furnaces` |
 | `gui.furnace-title` | String | Furnace inventory title. Supports `{id}` and `{status}`. | `&8Furnace #{id} - {status}` |
+| `recipes.vanilla-smelting.enabled` | Boolean | Whether standard vanilla Bukkit smelting recipes can be processed as fallbacks in custom furnaces. | `true` |
+| `recipes.vanilla-smelting.disabled-materials` | List<String> | List of vanilla material names (e.g., `RAW_IRON`) that are blocked from smelting when vanilla fallback is enabled. | `[]` |
 
 ---
 

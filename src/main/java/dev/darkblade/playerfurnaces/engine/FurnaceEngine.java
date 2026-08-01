@@ -50,6 +50,10 @@ public class FurnaceEngine {
             int totalCookTicks = 200;
 
             if (customRecipe != null) {
+                if (customRecipe.isDisabled()) {
+                    furnace.setCookTime(0);
+                    break;
+                }
                 totalCookTicks = customRecipe.getCookTimeTicks();
                 RecipeItemDefinition resDef = customRecipe.getResult();
                 if (resDef != null) {
@@ -60,10 +64,13 @@ public class FurnaceEngine {
                     }
                 }
             } else {
-                vanillaRecipe = SmeltingManager.getSmeltingRecipe(input);
-                if (vanillaRecipe != null) {
-                    result = vanillaRecipe.getResult();
-                    totalCookTicks = vanillaRecipe.getCookingTime();
+                boolean isVanillaEnabled = recipeManager == null || (recipeManager.isVanillaSmeltingEnabled() && !recipeManager.isVanillaMaterialDisabled(input.getType()));
+                if (isVanillaEnabled) {
+                    vanillaRecipe = SmeltingManager.getSmeltingRecipe(input);
+                    if (vanillaRecipe != null) {
+                        result = vanillaRecipe.getResult();
+                        totalCookTicks = vanillaRecipe.getCookingTime();
+                    }
                 }
             }
 
