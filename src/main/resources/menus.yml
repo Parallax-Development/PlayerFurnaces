@@ -1,0 +1,101 @@
+# ========================================== #
+#             MAIN MENU (HUB)                #
+# ========================================== #
+furnace_hub:
+  title: "Your Virtual Furnaces"
+  # Each letter or symbol is a slot. Lines define rows (9 slots per row).
+  layout:
+    - "XXXXXXXXX"
+    - "X#######X"
+    - "X#######X"
+    - "XXXXXXXXX"
+    - "XXXXXXXXX"
+    - "XXXXXXXXX"
+  
+  legend:
+    'X': 
+      type: FILLER
+      material: BLACK_STAINED_GLASS_PANE
+      name: " "
+    
+    '#':
+      type: FURNACE_SLOT
+      states:
+        smelting:
+          material: BLAST_FURNACE
+          name: "&aFurnace {id} &7(Smelting)"
+          lore:
+            - "&7Item: &f{item} &8x{amount}"
+            - "&7Time left: &f{time}s"
+            - ""
+            - "&eClick to open!"
+        idle:
+          material: FURNACE
+          name: "&aFurnace {id} &7(Idle)"
+          lore:
+            - "&7This furnace is not smelting anything."
+            - ""
+            - "&eClick to open!"
+        no_fuel:
+          material: FURNACE
+          name: "&cFurnace {id} &7(Out of Fuel)"
+          lore:
+            - "&7This furnace has run out of coal."
+            - ""
+            - "&eClick to open!"
+        locked:
+          material: RED_STAINED_GLASS_PANE
+          name: "&cFurnace {id} &7(Locked)"
+          lore:
+            - "&7You do not have permission"
+            - "&7to use this furnace."
+            - "&7(Requires higher rank)"
+
+# ========================================== #
+#             FURNACE MENU (VIEW)            #
+# ========================================== #
+furnace_view:
+  title: "Furnace {id} - {status}"
+  layout:
+    - "XXXXXXXXX"
+    - "XX I P OX"
+    - "X    C  X"
+    - "XX F S  X"
+    - "XXXXBXXXX"
+    
+  legend:
+    'X': 
+      type: FILLER
+      material: BLACK_STAINED_GLASS_PANE
+      name: " "
+    'I': 
+      type: INPUT
+    'O': 
+      type: OUTPUT
+    'S':
+      type: FUEL_SLOT
+    'C': 
+      type: COLLECT
+      material: HOPPER
+      name: "&aCollect Items"
+      lore:
+        - "&7Click here to send"
+        - "&7everything to your inventory."
+    'P': 
+      type: PROGRESS
+      active_material: LIME_STAINED_GLASS_PANE
+      active_name: "&aProgress: &f{pct}%"
+      waiting_material: GRAY_STAINED_GLASS_PANE
+      waiting_name: "&7Waiting..."
+    'F': 
+      type: FUEL_INDICATOR
+      active_material: FIRE_CHARGE
+      active_name: "&6Active Fuel"
+      active_lore:
+        - "&7Time left: &f{time}s"
+      inactive_material: COAL
+      inactive_name: "&7No Fuel"
+    'B': 
+      type: BACK
+      material: ARROW
+      name: "&cBack"

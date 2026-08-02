@@ -2,6 +2,7 @@ package dev.darkblade.playerfurnaces.gui;
 
 import dev.darkblade.playerfurnaces.PlayerFurnacesPlugin;
 import dev.darkblade.playerfurnaces.engine.FurnaceEngine;
+import dev.darkblade.playerfurnaces.model.MenuLayout;
 import dev.darkblade.playerfurnaces.model.VirtualFurnace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,19 +33,31 @@ public class GuiListener implements Listener {
             event.setCancelled(true);
             int rawSlot = event.getRawSlot();
 
-            if (rawSlot >= 0 && rawSlot < 54) {
-                int furnaceId = rawSlot + 1;
-                Player target = hubGui.getTargetOwner();
+            if (rawSlot >= 0 && rawSlot < hubGui.getInventory().getSize()) {
+                MenuLayout layout = hubGui.getLayout();
+                if (layout != null) {
+                    Integer furnaceId = null;
+                    for (Map.Entry<Integer, Integer> entry : layout.getDynamicSlotMap().entrySet()) {
+                        if (entry.getValue() == rawSlot) {
+                            furnaceId = entry.getKey();
+                            break;
+                        }
+                    }
 
-                if (!plugin.getFurnaceManager().hasPermissionForFurnace(target, furnaceId)) {
-                    plugin.getMessageManager().sendMessage(player, "no-furnace-permission", "{id}", String.valueOf(furnaceId));
-                    return;
+                    if (furnaceId != null) {
+                        Player target = hubGui.getTargetOwner();
+
+                        if (!plugin.getFurnaceManager().hasPermissionForFurnace(target, furnaceId)) {
+                            plugin.getMessageManager().sendMessage(player, "no-furnace-permission", "{id}", String.valueOf(furnaceId));
+                            return;
+                        }
+
+                        VirtualFurnace furnace = plugin.getFurnaceManager().getOrCreateFurnace(target.getUniqueId(), furnaceId);
+                        FurnaceEngine.updateFurnaceState(furnace);
+                        FurnaceViewGui viewGui = new FurnaceViewGui(plugin, player, furnace);
+                        player.openInventory(viewGui.getInventory());
+                    }
                 }
-
-                VirtualFurnace furnace = plugin.getFurnaceManager().getOrCreateFurnace(target.getUniqueId(), furnaceId);
-                FurnaceEngine.updateFurnaceState(furnace);
-                FurnaceViewGui viewGui = new FurnaceViewGui(plugin, player, furnace);
-                player.openInventory(viewGui.getInventory());
             }
             return;
         }
@@ -53,28 +66,28 @@ public class GuiListener implements Listener {
             int rawSlot = event.getRawSlot();
             VirtualFurnace furnace = viewGui.getFurnace();
 
-            if (rawSlot >= 0 && rawSlot < 45) {
-                if (rawSlot == FurnaceViewGui.COLLECT_SLOT) {
+            if (rawSlot >= 0 && rawSlot < viewGui.getInventory().getSize()) {
+                if (rawSlot == viewGui.getCollectSlot()) {
                     event.setCancelled(true);
                     collectOutput(player, furnace);
                     viewGui.refresh();
                     return;
                 }
 
-                if (rawSlot == FurnaceViewGui.BACK_SLOT) {
+                if (rawSlot == viewGui.getBackSlot()) {
                     event.setCancelled(true);
-                    syncFurnaceFromInventory(inv, furnace);
+                    syncFurnaceFromInventory(inv, furnace, viewGui);
                     FurnaceHubGui hubGui = new FurnaceHubGui(plugin, player, player);
                     player.openInventory(hubGui.getInventory());
                     return;
                 }
 
-                if (rawSlot != FurnaceViewGui.INPUT_SLOT && rawSlot != FurnaceViewGui.FUEL_SLOT && rawSlot != FurnaceViewGui.OUTPUT_SLOT) {
+                if (rawSlot != viewGui.getInputSlot() && rawSlot != viewGui.getFuelSlot() && rawSlot != viewGui.getOutputSlot()) {
                     event.setCancelled(true);
                     return;
                 }
 
-                if (rawSlot == FurnaceViewGui.OUTPUT_SLOT) {
+                if (rawSlot == viewGui.getOutputSlot()) {
                     ItemStack cursor = event.getCursor();
                     if (cursor != null && !cursor.getType().isAir()) {
                         event.setCancelled(true);
@@ -84,7 +97,7 @@ public class GuiListener implements Listener {
             }
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                syncFurnaceFromInventory(inv, furnace);
+                syncFurnaceFromInventory(inv, furnace, viewGui);
                 viewGui.refresh();
             });
         }
@@ -99,13 +112,13 @@ public class GuiListener implements Listener {
 
         if (event.getInventory().getHolder() instanceof FurnaceViewGui viewGui) {
             for (int slot : event.getRawSlots()) {
-                if (slot < 45 && slot != FurnaceViewGui.INPUT_SLOT && slot != FurnaceViewGui.FUEL_SLOT) {
+                if (slot < viewGui.getInventory().getSize() && slot != viewGui.getInputSlot() && slot != viewGui.getFuelSlot()) {
                     event.setCancelled(true);
                     return;
                 }
             }
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                syncFurnaceFromInventory(event.getInventory(), viewGui.getFurnace());
+                syncFurnaceFromInventory(event.getInventory(), viewGui.getFurnace(), viewGui);
                 viewGui.refresh();
             });
         }
@@ -114,15 +127,15 @@ public class GuiListener implements Listener {
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
         if (event.getInventory().getHolder() instanceof FurnaceViewGui viewGui) {
-            syncFurnaceFromInventory(event.getInventory(), viewGui.getFurnace());
+            syncFurnaceFromInventory(event.getInventory(), viewGui.getFurnace(), viewGui);
             plugin.getDatabaseManager().saveFurnace(viewGui.getFurnace());
         }
     }
 
-    private void syncFurnaceFromInventory(Inventory inv, VirtualFurnace furnace) {
-        furnace.setInputItem(inv.getItem(FurnaceViewGui.INPUT_SLOT));
-        furnace.setFuelItem(inv.getItem(FurnaceViewGui.FUEL_SLOT));
-        furnace.setOutputItem(inv.getItem(FurnaceViewGui.OUTPUT_SLOT));
+    private void syncFurnaceFromInventory(Inventory inv, VirtualFurnace furnace, FurnaceViewGui viewGui) {
+        if (viewGui.getInputSlot() != -1) furnace.setInputItem(inv.getItem(viewGui.getInputSlot()));
+        if (viewGui.getFuelSlot() != -1) furnace.setFuelItem(inv.getItem(viewGui.getFuelSlot()));
+        if (viewGui.getOutputSlot() != -1) furnace.setOutputItem(inv.getItem(viewGui.getOutputSlot()));
         FurnaceEngine.updateFurnaceState(furnace);
     }
 

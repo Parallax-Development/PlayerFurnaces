@@ -3,6 +3,9 @@ package dev.darkblade.playerfurnaces.gui;
 import dev.darkblade.playerfurnaces.PlayerFurnacesPlugin;
 import dev.darkblade.playerfurnaces.engine.FurnaceEngine;
 import dev.darkblade.playerfurnaces.model.FurnaceStatus;
+import dev.darkblade.playerfurnaces.model.MenuLayout;
+import dev.darkblade.playerfurnaces.model.MenuSlotData;
+import dev.darkblade.playerfurnaces.model.MenuStateData;
 import dev.darkblade.playerfurnaces.model.VirtualFurnace;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,7 +15,9 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FurnaceHubGui implements InventoryHolder {
 
@@ -20,76 +25,105 @@ public class FurnaceHubGui implements InventoryHolder {
     private final Player viewer;
     private final Player targetOwner;
     private final Inventory inventory;
+    private final MenuLayout layout;
 
     public FurnaceHubGui(PlayerFurnacesPlugin plugin, Player viewer, Player targetOwner) {
         this.plugin = plugin;
         this.viewer = viewer;
         this.targetOwner = targetOwner;
-        String title = plugin.getMessageManager().getMessage("gui.hub.title", false, "{player}", targetOwner.getName());
-        this.inventory = Bukkit.createInventory(this, 54, title);
+        this.layout = plugin.getMenuManager().getLayout("furnace_hub");
+        
+        String title = layout != null ? layout.getTitle().replace("{player}", targetOwner.getName()) : "Furnaces";
+        int size = layout != null ? layout.getSize() : 54;
+        
+        this.inventory = Bukkit.createInventory(this, size, title);
         refresh();
     }
 
     public void refresh() {
         inventory.clear();
+        if (layout == null) return;
+
+        // Render fillers and static items
+        for (Map.Entry<Integer, MenuSlotData> entry : layout.getSlots().entrySet()) {
+            int slot = entry.getKey();
+            MenuSlotData data = entry.getValue();
+            
+            if ("FILLER".equals(data.getType())) {
+                inventory.setItem(slot, createItem(data.getDefaultState(), null));
+            }
+        }
+
         int maxFurnaces = plugin.getConfig().getInt("settings.default-furnace-count", 14);
 
         for (int i = 1; i <= maxFurnaces; i++) {
+            // Find slot from dynamic layout mapping
+            Integer slot = layout.getDynamicSlotMap().get(i);
+            if (slot == null) break; // Layout does not have space for more furnaces
+
+            MenuSlotData slotData = layout.getSlots().get(slot);
+            if (slotData == null || !"FURNACE_SLOT".equals(slotData.getType())) continue;
+
             boolean hasPerm = plugin.getFurnaceManager().hasPermissionForFurnace(targetOwner, i);
             VirtualFurnace furnace = plugin.getFurnaceManager().getOrCreateFurnace(targetOwner.getUniqueId(), i);
             FurnaceEngine.updateFurnaceState(furnace);
 
-            ItemStack icon;
-            ItemMeta meta;
-            List<String> lore;
-
+            MenuStateData stateData;
             if (!hasPerm) {
-                icon = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-                meta = icon.getItemMeta();
-                meta.setDisplayName(plugin.getMessageManager().getMessage("gui.hub.locked.name", false, "{id}", String.valueOf(i)));
-                lore = plugin.getMessageManager().getMessageList("gui.hub.locked.lore", "{id}", String.valueOf(i));
+                stateData = slotData.getState("locked");
             } else {
-                FurnaceStatus status = furnace.getStatus();
-                String itemType = furnace.getInputItem() != null ? furnace.getInputItem().getType().name() : "Air";
-                String itemAmount = furnace.getInputItem() != null ? String.valueOf(furnace.getInputItem().getAmount()) : "0";
-                String remainingTime = String.valueOf(furnace.getBurnTime() / 20);
-
-                switch (status) {
-                    case SMELTING -> {
-                        icon = new ItemStack(Material.BLAST_FURNACE);
-                        meta = icon.getItemMeta();
-                        meta.setDisplayName(plugin.getMessageManager().getMessage("gui.hub.smelting.name", false, "{id}", String.valueOf(i)));
-                        lore = plugin.getMessageManager().getMessageList("gui.hub.smelting.lore",
-                                "{id}", String.valueOf(i),
-                                "{item}", itemType,
-                                "{amount}", itemAmount,
-                                "{time}", remainingTime);
-                    }
-                    case NO_FUEL -> {
-                        icon = new ItemStack(Material.FURNACE);
-                        meta = icon.getItemMeta();
-                        meta.setDisplayName(plugin.getMessageManager().getMessage("gui.hub.no-fuel.name", false, "{id}", String.valueOf(i)));
-                        lore = plugin.getMessageManager().getMessageList("gui.hub.no-fuel.lore", "{id}", String.valueOf(i));
-                    }
-                    default -> {
-                        icon = new ItemStack(Material.FURNACE);
-                        meta = icon.getItemMeta();
-                        meta.setDisplayName(plugin.getMessageManager().getMessage("gui.hub.idle.name", false, "{id}", String.valueOf(i)));
-                        lore = plugin.getMessageManager().getMessageList("gui.hub.idle.lore", "{id}", String.valueOf(i));
-                    }
+                switch (furnace.getStatus()) {
+                    case SMELTING -> stateData = slotData.getState("smelting");
+                    case NO_FUEL -> stateData = slotData.getState("no_fuel");
+                    default -> stateData = slotData.getState("idle");
                 }
             }
-
-            if (meta != null) {
-                meta.setLore(lore);
-                icon.setItemMeta(meta);
-            }
-            inventory.setItem(i - 1, icon);
+            
+            inventory.setItem(slot, createItem(stateData, furnace));
         }
+    }
+
+    private ItemStack createItem(MenuStateData stateData, VirtualFurnace furnace) {
+        if (stateData == null || stateData.getMaterial() == null) return new ItemStack(Material.AIR);
+        
+        ItemStack item = new ItemStack(stateData.getMaterial());
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            String name = stateData.getName();
+            if (name != null && !name.isEmpty() && furnace != null) {
+                meta.setDisplayName(name.replace("{id}", String.valueOf(furnace.getFurnaceId())));
+            } else if (name != null && !name.isEmpty()) {
+                meta.setDisplayName(name);
+            }
+
+            if (stateData.getLore() != null && !stateData.getLore().isEmpty()) {
+                List<String> lore = new ArrayList<>();
+                for (String line : stateData.getLore()) {
+                    if (furnace != null) {
+                        String itemType = furnace.getInputItem() != null ? furnace.getInputItem().getType().name() : "Air";
+                        String itemAmount = furnace.getInputItem() != null ? String.valueOf(furnace.getInputItem().getAmount()) : "0";
+                        String remainingTime = String.valueOf(furnace.getBurnTime() / 20);
+                        
+                        line = line.replace("{id}", String.valueOf(furnace.getFurnaceId()))
+                                   .replace("{item}", itemType)
+                                   .replace("{amount}", itemAmount)
+                                   .replace("{time}", remainingTime);
+                    }
+                    lore.add(line);
+                }
+                meta.setLore(lore);
+            }
+            item.setItemMeta(meta);
+        }
+        return item;
     }
 
     public Player getTargetOwner() {
         return targetOwner;
+    }
+
+    public MenuLayout getLayout() {
+        return layout;
     }
 
     @Override
