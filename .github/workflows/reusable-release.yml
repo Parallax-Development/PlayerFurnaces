@@ -1,0 +1,73 @@
+name: Auto Plugin Release
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: false
+        type: string
+        default: '21'
+        description: 'The Java version to set up'
+      build-tool:
+        required: false
+        type: string
+        default: 'auto'
+        description: 'Build tool to use: auto, gradle, maven'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up Java ${{ inputs.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: 'temurin'
+          
+      - name: 🛠️ Detect tool and build
+        id: compile
+        run: |
+          TOOL="${{ inputs.build-tool }}"
+          
+          # 1. Auto-detect mechanism
+          if [ "$TOOL" = "auto" ]; then
+            if [ -f "pom.xml" ]; then
+              TOOL="maven"
+            elif [ -f "build.gradle" ] || [ -f "build.gradle.kts" ]; then
+              TOOL="gradle"
+            else
+              echo "❌ Error: Could not auto-detect build tool (neither Maven nor Gradle found)."
+              exit 1
+            fi
+            echo "Auto-detection resolved to use: $TOOL"
+          fi
+          
+          # 2. Build and find the JAR
+          if [ "$TOOL" = "gradle" ]; then
+            chmod +x gradlew
+            ./gradlew build
+            # Find the JAR (ignoring sources and javadocs)
+            JAR_PATH=$(find build/libs -name "*.jar" ! -name "*-javadoc.jar" ! -name "*-sources.jar" | head -n 1)
+          elif [ "$TOOL" = "maven" ]; then
+            mvn clean package
+            JAR_PATH=$(find target -name "*.jar" ! -name "*-javadoc.jar" ! -name "*-sources.jar" | head -n 1)
+          else
+            echo "❌ Invalid build tool specified: $TOOL"
+            exit 1
+          fi
+          
+          if [ -z "$JAR_PATH" ]; then
+            echo "❌ Error: Could not find compiled JAR."
+            exit 1
+          fi
+          
+          echo "✅ Compiled JAR found at: $JAR_PATH"
+          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
+
+      - name: 🚀 Upload JAR to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} "${{ steps.compile.outputs.jar_path }}"
