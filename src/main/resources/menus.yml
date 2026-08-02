@@ -8,8 +8,8 @@ furnace_hub:
     - "XXXXXXXXX"
     - "X#######X"
     - "X#######X"
-    - "XXXXXXXXX"
-    - "XXXXXXXXX"
+    - "X#######X"
+    - "X#######X"
     - "XXXXXXXXX"
   
   legend:
@@ -58,15 +58,19 @@ furnace_view:
   title: "Furnace {id} - {status}"
   layout:
     - "XXXXXXXXX"
-    - "XX I P OX"
-    - "X    C  X"
-    - "XX F S  X"
+    - "XXIXXYYXX"
+    - "XXFXPOYXX"
+    - "XXSXCYYXX"
     - "XXXXBXXXX"
     
   legend:
     'X': 
       type: FILLER
       material: BLACK_STAINED_GLASS_PANE
+      name: " "
+    'Y': 
+      type: FILLER
+      material: GRAY_STAINED_GLASS_PANE
       name: " "
     'I': 
       type: INPUT
@@ -85,7 +89,7 @@ furnace_view:
       type: PROGRESS
       active_material: LIME_STAINED_GLASS_PANE
       active_name: "&aProgress: &f{pct}%"
-      waiting_material: GRAY_STAINED_GLASS_PANE
+      waiting_material: RED_STAINED_GLASS_PANE
       waiting_name: "&7Waiting..."
     'F': 
       type: FUEL_INDICATOR

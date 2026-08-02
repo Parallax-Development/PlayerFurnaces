@@ -4,7 +4,7 @@ database:
   file: furnaces.db
 
 settings:
-  default-furnace-count: 14
+  default-furnace-count: 28
   max-furnace-count: 54
   gui-refresh-ticks: 10
 

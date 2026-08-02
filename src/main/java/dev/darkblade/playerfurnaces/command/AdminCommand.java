@@ -45,6 +45,7 @@ public class AdminCommand implements TabExecutor {
             plugin.getRecipeManager().loadRecipes();
             plugin.getFuelManager().loadFuels();
             plugin.getMessageManager().reloadMessages();
+            plugin.getMenuManager().loadMenus();
             plugin.getMessageManager().sendMessage(sender, "reload-success");
             return true;
         }
