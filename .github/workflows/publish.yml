@@ -1,0 +1,15 @@
+name: Publicar Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-upload:
+    uses: Parallax-Development/PlayerFurnaces/.github/workflows/reusable-release.yml@main
+    
+    with:
+      java-version: '21'
+      build-tool: 'auto'
+      
+    secrets: inherit
