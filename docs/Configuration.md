@@ -78,6 +78,47 @@ admin-help:
 ```
 
 ### 🎨 Supported Color Formatting
-PlayerFurnaces supports:
-* **Legacy Codes**: Using the `&` symbol (e.g., `&a`, `&e`, `&l`).
-* **MiniMessage / Hexadecimal Syntax**: For modern gradients and RGB color tags (e.g., `<red>`, `<#FF5555>`).
+
+PlayerFurnaces features a unified color utility supporting legacy, HEX, and MiniMessage syntax across all messages, GUI titles, item names, and lore lines:
+
+* **Legacy Ampersand Codes**: Standard Bukkit codes using `&` (e.g., `&aGreen`, `&cRed`, `&lBold`).
+* **HEX Color Codes**: Both `&#RRGGBB` and `<#RRGGBB>` formats (e.g., `&#ff0000Header` or `<#ff5555>Header`).
+* **MiniMessage Formatting**: Modern Kyori MiniMessage tags including colors, gradients, and styling (e.g., `<red>`, `<gradient:#ff0000:#00ff00>Virtual Furnaces</gradient>`, `<bold>`).
+
+---
+
+## 🎨 `menus.yml` (GUI Layouts & Customization)
+
+The `menus.yml` file allows full customization of GUI layouts (`furnace_hub` and `furnace_view`), item materials, custom model data, and player heads.
+
+### 📄 Item Customization Options
+
+Every slot state in `menus.yml` supports the following properties:
+
+| Property | Type | Description | Example |
+| :--- | :--- | :--- | :--- |
+| `material` | String | Bukkit material name (e.g., `FURNACE`, `PLAYER_HEAD`, `RED_STAINED_GLASS_PANE`). | `PLAYER_HEAD` |
+| `name` | String | Display name supporting legacy `&`, HEX, and MiniMessage color codes as well as `{id}`, `{status}`, `{player}` placeholders. | `<#00ffcc>Furnace #{id}` |
+| `lore` | List<String> | Lore lines supporting color formatting and state placeholders (`{item}`, `{amount}`, `{time}`). | `["<gray>Time left: <white>{time}s"]` |
+| `custom_model_data` | Integer | CustomModelData integer applied to the item's meta. | `10042` |
+| `skull_owner` | String | Player name or placeholder for player head items. Replaces `{player}` with the target viewer/owner. | `{player}` |
+| `skull_texture` | String | Base64 texture string for custom Minecraft player head skins. | `eyJ0ZXh0dXJlcyI6...` |
+
+### 📄 Example Slot State with CustomModelData & Player Head
+
+```yaml
+'#':
+  type: FURNACE_SLOT
+  states:
+    smelting:
+      material: PLAYER_HEAD
+      skull_owner: "{player}"
+      custom_model_data: 2001
+      name: "<gradient:#ff0000:#00ff00>Furnace {id}</gradient> <gray>(Smelting)"
+      lore:
+        - "<gray>Item: <white>{item} <dark_gray>x{amount}"
+        - "<gray>Time left: <white>{time}s"
+        - ""
+        - "<yellow>Click to open!"
+```
+

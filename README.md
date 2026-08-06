@@ -70,9 +70,12 @@
 * 🔌 **Extensible Item Provider Integration (ItemProvider API)**:
   * Native & reflection hook support for **Craftorithm** (`crafthorim:item_id`).
   * Fallback item matching using PDC (*PersistentDataContainer*) tags.
+* 🎨 **Rich Formatting & Color Support**: Full native support for Kyori MiniMessage (`<red>`, `<gradient>`, `<bold>`), HEX codes (`&#RRGGBB` / `<#RRGGBB>`), and legacy ampersand codes (`&a`) across all messages, GUI titles, item names, and lore lines.
+* 👤 **GUI Customization & Player Heads**: Full support in `menus.yml` for `custom_model_data`, player head owners (`skull_owner: "{player}"`), and base64 skin textures (`skull_texture`).
 * 🛡️ **Admin Tools (`/pfadmin`)**:
   * Real-time inspection of any player's hub or individual furnace (online or offline) via `/pfadmin view <player> [id]`.
-  * Hot reload of configurations and recipes via `/pfadmin reload`.
+  * Force an online player to open a furnace via `/pfadmin force-open <player> <index> [--bypass-perms]`.
+  * Hot reload of configurations, messages, menus, and recipes via `/pfadmin reload`.
 
 ---
 
@@ -111,7 +114,8 @@ The plugin is designed with a modular, reactive architecture:
 | Command | Permission | Description |
 | :--- | :--- | :--- |
 | `/pfadmin view <player> [id]` | `playerfurnaces.admin` | Inspects a player's hub or specific virtual furnace. |
-| `/pfadmin reload` | `playerfurnaces.admin` | Reloads `config.yml`, `messages.yml`, recipes, and fuels. |
+| `/pfadmin force-open <player> <id> [-b]` | `playerfurnaces.admin` | Forces a target player to open a furnace (checks target's furnace permission unless `--bypass-perms` is passed). |
+| `/pfadmin reload` | `playerfurnaces.admin` | Reloads `config.yml`, `messages.yml`, `menus.yml`, recipes, and fuels. |
 
 ### 🔑 Permission Nodes
 * `playerfurnaces.command.use` (Default: `true`): Grants access to the base `/furnace` command.

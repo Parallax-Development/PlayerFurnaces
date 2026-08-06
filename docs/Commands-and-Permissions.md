@@ -25,8 +25,11 @@ Reference manual listing all commands and permission nodes available in **Player
 1. **`/pfadmin view <player> [id]`**
    * **Description**: Allows an administrator to inspect the furnace hub or a specific virtual furnace of any player, online or offline.
    * **Example**: `/pfadmin view DarkBladeDev 2`
-2. **`/pfadmin reload`**
-   * **Description**: Hot reloads `config.yml`, `messages.yml`, as well as all recipe (`recipes/`) and fuel (`fuels/`) files.
+2. **`/pfadmin force-open <player> <index> [--bypass-perms]`**
+   * **Description**: Forces an online target player to open their specified virtual furnace index. Respects standard target furnace permissions (`playerfurnaces.furnace.<index>`) unless `--bypass-perms` (or `-b`) is passed.
+   * **Example**: `/pfadmin force-open Steve 1` or `/pfadmin force-open Alex 3 --bypass-perms`
+3. **`/pfadmin reload`**
+   * **Description**: Hot reloads `config.yml`, `messages.yml`, `menus.yml`, as well as all recipe (`recipes/`) and fuel (`fuels/`) files.
 
 ---
 
