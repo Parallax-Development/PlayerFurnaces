@@ -120,7 +120,7 @@ The plugin is designed with a modular, reactive architecture:
 ### 🔑 Permission Nodes
 * `playerfurnaces.command.use` (Default: `true`): Grants access to the base `/furnace` command.
 * `playerfurnaces.admin` (Default: `op`): Access to `/pfadmin` commands.
-* `playerfurnaces.furnace.<1-54>` (Default for 1 & 2: `true`): Unlocks virtual furnace number `<id>`.
+* `playerfurnaces.furnace.<1-54>` (Default for 1 & 2: `op`): Unlocks virtual furnace number `<id>`.
 
 ---
 

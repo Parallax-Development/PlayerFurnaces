@@ -105,9 +105,9 @@ public class FurnaceHubGui implements InventoryHolder {
 
             String name = stateData.getName();
             if (name != null && !name.isEmpty() && furnace != null) {
-                meta.setDisplayName(name.replace("{id}", String.valueOf(furnace.getFurnaceId())));
+                meta.setDisplayName(dev.darkblade.playerfurnaces.util.ColorUtils.colorize(name.replace("{id}", String.valueOf(furnace.getFurnaceId()))));
             } else if (name != null && !name.isEmpty()) {
-                meta.setDisplayName(name);
+                meta.setDisplayName(dev.darkblade.playerfurnaces.util.ColorUtils.colorize(name));
             }
 
             if (stateData.getLore() != null && !stateData.getLore().isEmpty()) {
@@ -123,7 +123,7 @@ public class FurnaceHubGui implements InventoryHolder {
                                    .replace("{amount}", itemAmount)
                                    .replace("{time}", remainingTime);
                     }
-                    lore.add(line);
+                    lore.add(dev.darkblade.playerfurnaces.util.ColorUtils.colorize(line));
                 }
                 meta.setLore(lore);
             }

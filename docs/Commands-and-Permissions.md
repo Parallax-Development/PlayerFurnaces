@@ -41,8 +41,8 @@ PlayerFurnaces uses a granular permission structure to control access to virtual
 | :--- | :--- | :--- |
 | `playerfurnaces.command.use` | `true` (Everyone) | Grants permission to execute the base `/furnace` command. |
 | `playerfurnaces.admin` | `op` (Operators) | Grants full access to `/pfadmin` commands. |
-| `playerfurnaces.furnace.1` | `true` | Grants access to Virtual Furnace #1. |
-| `playerfurnaces.furnace.2` | `true` | Grants access to Virtual Furnace #2. |
+| `playerfurnaces.furnace.1` | `op` | Grants access to Virtual Furnace #1. |
+| `playerfurnaces.furnace.2` | `op` | Grants access to Virtual Furnace #2. |
 | `playerfurnaces.furnace.<3-54>` | `false` | Unlocks individual furnace `<id>`. Ideal for VIP ranks or rewards. |
 
 ---

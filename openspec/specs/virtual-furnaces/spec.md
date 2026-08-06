@@ -4,7 +4,7 @@
 TBD - created by archiving change virtual-player-furnaces. Update Purpose after archive.
 ## Requirements
 ### Requirement: Virtual Furnace Selector GUI
-The system SHALL display an interactive GUI when a player executes `/furnace` or `/horno` showing all virtual furnaces available to that player, utilizing the dynamic layout engine to render the visual structure.
+The system SHALL display an interactive GUI when a player executes `/furnace` or `/horno` showing all virtual furnaces available to that player, utilizing the dynamic layout engine to render the visual structure. Access permissions for virtual furnaces #1 and #2 in `plugin.yml` SHALL default to `op` instead of `true`.
 
 #### Scenario: Opening furnace selector
 - **WHEN** player executes `/furnace`

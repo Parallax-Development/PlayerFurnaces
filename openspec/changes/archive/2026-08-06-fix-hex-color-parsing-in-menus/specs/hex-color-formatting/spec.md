@@ -1,9 +1,5 @@
-# hex-color-formatting Specification
+## MODIFIED Requirements
 
-## Purpose
-Specification for MiniMessage, HEX color codes, and legacy color code formatting in PlayerFurnaces.
-
-## Requirements
 ### Requirement: MiniMessage and HEX Color Support
 The system SHALL parse HEX color codes (`#RRGGBB`, `&#RRGGBB`, and `<#RRGGBB>`) and Kyori MiniMessage tags (`<red>`, `<gradient>`, etc.) across all chat messages, GUI inventory titles, item display names, and item lore lines, including after placeholder substitution in GUI menus.
 

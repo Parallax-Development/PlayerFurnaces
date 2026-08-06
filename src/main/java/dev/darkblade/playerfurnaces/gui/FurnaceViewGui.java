@@ -127,11 +127,12 @@ public class FurnaceViewGui implements InventoryHolder {
             String name = stateData.getName();
             if (name != null && !name.isEmpty() && furnace != null) {
                 int pct = furnace.getTotalCookTime() > 0 ? (furnace.getCookTime() * 100) / furnace.getTotalCookTime() : 0;
-                meta.setDisplayName(name.replace("{id}", String.valueOf(furnace.getFurnaceId()))
-                                        .replace("{pct}", String.valueOf(pct))
-                                        .replace("{time}", String.valueOf(furnace.getBurnTime() / 20)));
+                String replaced = name.replace("{id}", String.valueOf(furnace.getFurnaceId()))
+                                      .replace("{pct}", String.valueOf(pct))
+                                      .replace("{time}", String.valueOf(furnace.getBurnTime() / 20));
+                meta.setDisplayName(dev.darkblade.playerfurnaces.util.ColorUtils.colorize(replaced));
             } else if (name != null && !name.isEmpty()) {
-                meta.setDisplayName(name);
+                meta.setDisplayName(dev.darkblade.playerfurnaces.util.ColorUtils.colorize(name));
             }
 
             if (stateData.getLore() != null && !stateData.getLore().isEmpty()) {
@@ -147,7 +148,7 @@ public class FurnaceViewGui implements InventoryHolder {
                                    .replace("{amount}", itemAmount)
                                    .replace("{time}", remainingTime);
                     }
-                    lore.add(line);
+                    lore.add(dev.darkblade.playerfurnaces.util.ColorUtils.colorize(line));
                 }
                 meta.setLore(lore);
             }

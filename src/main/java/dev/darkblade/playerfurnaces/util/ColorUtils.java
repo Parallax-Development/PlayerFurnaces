@@ -15,21 +15,22 @@ import java.util.regex.Pattern;
 
 public class ColorUtils {
 
-    private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
+    private static final Pattern HEX_PATTERN = Pattern.compile("(?:&#|(?<!<)#)([A-Fa-f0-9]{6})");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .hexColors()
+            .useUnusualXRepeatedCharacterHexFormat()
             .build();
 
     /**
-     * Colorizes a string supporting MiniMessage tags, &#RRGGBB, <#RRGGBB>, and & legacy codes.
+     * Colorizes a string supporting MiniMessage tags, &#RRGGBB, #RRGGBB, <#RRGGBB>, and & legacy codes.
      */
     public static String colorize(String text) {
         if (text == null || text.isEmpty()) {
             return "";
         }
 
-        // Convert &#RRGGBB format to <#RRGGBB>
+        // Convert &#RRGGBB or #RRGGBB format to <#RRGGBB> for MiniMessage
         Matcher matcher = HEX_PATTERN.matcher(text);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
@@ -38,18 +39,33 @@ public class ColorUtils {
         matcher.appendTail(sb);
         String processed = sb.toString();
 
-        // Convert legacy ampersand codes to legacy section symbols
-        processed = ChatColor.translateAlternateColorCodes('&', processed);
-
+        // Deserialize MiniMessage first if tags are present
         if (processed.contains("<") && processed.contains(">")) {
             try {
                 Component component = MINI_MESSAGE.deserialize(processed);
-                return LEGACY_SERIALIZER.serialize(component);
+                processed = LEGACY_SERIALIZER.serialize(component);
             } catch (Exception ignored) {
             }
         }
 
-        return processed;
+        // Convert legacy ampersand codes (&c, &l, etc.) and fallback hex formatting
+        processed = translateHexToLegacy(processed);
+        return ChatColor.translateAlternateColorCodes('&', processed);
+    }
+
+    private static String translateHexToLegacy(String text) {
+        Matcher matcher = HEX_PATTERN.matcher(text);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            String hex = matcher.group(1);
+            StringBuilder replacement = new StringBuilder("§x");
+            for (char c : hex.toCharArray()) {
+                replacement.append('§').append(c);
+            }
+            matcher.appendReplacement(sb, replacement.toString());
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 
     /**
