@@ -89,7 +89,15 @@ public class MenuManager {
                         List<String> lore = slotSection.getStringList(inlineStatePrefix + "_lore").stream().map(this::colorize).collect(Collectors.toList());
                         if (lore.isEmpty()) lore = defaultState.getLore();
                         
-                        Integer customModelData = slotSection.contains(inlineStatePrefix + "_custom_model_data") ? slotSection.getInt(inlineStatePrefix + "_custom_model_data") : defaultState.getCustomModelData();
+                        Integer customModelData = null;
+                        if (slotSection.contains(inlineStatePrefix + "_custom_model_data")) {
+                            customModelData = slotSection.getInt(inlineStatePrefix + "_custom_model_data");
+                        } else if (slotSection.contains(inlineStatePrefix + "-custom-model-data")) {
+                            customModelData = slotSection.getInt(inlineStatePrefix + "-custom-model-data");
+                        } else {
+                            customModelData = defaultState.getCustomModelData();
+                        }
+
                         String skullOwner = slotSection.getString(inlineStatePrefix + "_skull_owner", defaultState.getSkullOwner());
                         String skullTexture = slotSection.getString(inlineStatePrefix + "_skull_texture", defaultState.getSkullTexture());
 
@@ -139,8 +147,12 @@ public class MenuManager {
         String name = colorize(section.getString("name", ""));
         List<String> lore = section.getStringList("lore").stream().map(this::colorize).collect(Collectors.toList());
         
-        Integer customModelData = section.contains("custom_model_data") ? section.getInt("custom_model_data") :
-                (section.contains("custom-model-data") ? section.getInt("custom-model-data") : null);
+        Integer customModelData = null;
+        if (section.contains("custom_model_data")) {
+            customModelData = section.getInt("custom_model_data");
+        } else if (section.contains("custom-model-data")) {
+            customModelData = section.getInt("custom-model-data");
+        }
 
         String skullOwner = section.getString("skull_owner", section.getString("skull-owner", section.getString("owner", null)));
         String skullTexture = section.getString("skull_texture", section.getString("skull-texture", section.getString("texture", null)));
