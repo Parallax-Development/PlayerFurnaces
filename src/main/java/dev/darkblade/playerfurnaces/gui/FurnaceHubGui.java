@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +90,19 @@ public class FurnaceHubGui implements InventoryHolder {
         ItemStack item = new ItemStack(stateData.getMaterial());
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
+            if (stateData.getCustomModelData() != null) {
+                meta.setCustomModelData(stateData.getCustomModelData());
+            }
+
+            if (meta instanceof SkullMeta skullMeta) {
+                if (stateData.getSkullOwner() != null && !stateData.getSkullOwner().isEmpty()) {
+                    String owner = stateData.getSkullOwner().replace("{player}", targetOwner != null ? targetOwner.getName() : viewer.getName());
+                    skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+                } else if (stateData.getSkullTexture() != null && !stateData.getSkullTexture().isEmpty()) {
+                    dev.darkblade.playerfurnaces.util.ColorUtils.applySkullTexture(skullMeta, stateData.getSkullTexture());
+                }
+            }
+
             String name = stateData.getName();
             if (name != null && !name.isEmpty() && furnace != null) {
                 meta.setDisplayName(name.replace("{id}", String.valueOf(furnace.getFurnaceId())));

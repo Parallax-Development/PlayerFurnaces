@@ -4,7 +4,7 @@ import dev.darkblade.playerfurnaces.PlayerFurnacesPlugin;
 import dev.darkblade.playerfurnaces.model.MenuLayout;
 import dev.darkblade.playerfurnaces.model.MenuSlotData;
 import dev.darkblade.playerfurnaces.model.MenuStateData;
-import org.bukkit.ChatColor;
+import dev.darkblade.playerfurnaces.util.ColorUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -89,7 +89,11 @@ public class MenuManager {
                         List<String> lore = slotSection.getStringList(inlineStatePrefix + "_lore").stream().map(this::colorize).collect(Collectors.toList());
                         if (lore.isEmpty()) lore = defaultState.getLore();
                         
-                        states.put(inlineStatePrefix, new MenuStateData(mat, name, lore));
+                        Integer customModelData = slotSection.contains(inlineStatePrefix + "_custom_model_data") ? slotSection.getInt(inlineStatePrefix + "_custom_model_data") : defaultState.getCustomModelData();
+                        String skullOwner = slotSection.getString(inlineStatePrefix + "_skull_owner", defaultState.getSkullOwner());
+                        String skullTexture = slotSection.getString(inlineStatePrefix + "_skull_texture", defaultState.getSkullTexture());
+
+                        states.put(inlineStatePrefix, new MenuStateData(mat, name, lore, customModelData, skullOwner, skullTexture));
                     }
                 }
             }
@@ -135,7 +139,13 @@ public class MenuManager {
         String name = colorize(section.getString("name", ""));
         List<String> lore = section.getStringList("lore").stream().map(this::colorize).collect(Collectors.toList());
         
-        return new MenuStateData(material, name, lore);
+        Integer customModelData = section.contains("custom_model_data") ? section.getInt("custom_model_data") :
+                (section.contains("custom-model-data") ? section.getInt("custom-model-data") : null);
+
+        String skullOwner = section.getString("skull_owner", section.getString("skull-owner", section.getString("owner", null)));
+        String skullTexture = section.getString("skull_texture", section.getString("skull-texture", section.getString("texture", null)));
+
+        return new MenuStateData(material, name, lore, customModelData, skullOwner, skullTexture);
     }
 
     public MenuLayout getLayout(String menuName) {
@@ -144,6 +154,6 @@ public class MenuManager {
 
     private String colorize(String text) {
         if (text == null) return null;
-        return ChatColor.translateAlternateColorCodes('&', text);
+        return ColorUtils.colorize(text);
     }
 }

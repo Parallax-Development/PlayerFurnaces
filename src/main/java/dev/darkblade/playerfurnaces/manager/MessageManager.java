@@ -1,7 +1,7 @@
 package dev.darkblade.playerfurnaces.manager;
 
 import dev.darkblade.playerfurnaces.PlayerFurnacesPlugin;
-import org.bukkit.ChatColor;
+import dev.darkblade.playerfurnaces.util.ColorUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -86,7 +86,6 @@ public class MessageManager {
     }
 
     private String colorize(String text) {
-        if (text == null) return "";
-        return ChatColor.translateAlternateColorCodes('&', text);
+        return ColorUtils.colorize(text);
     }
 }

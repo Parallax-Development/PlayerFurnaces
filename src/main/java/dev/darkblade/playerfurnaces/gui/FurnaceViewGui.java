@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +111,19 @@ public class FurnaceViewGui implements InventoryHolder {
         ItemStack item = new ItemStack(stateData.getMaterial());
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
+            if (stateData.getCustomModelData() != null) {
+                meta.setCustomModelData(stateData.getCustomModelData());
+            }
+
+            if (meta instanceof SkullMeta skullMeta) {
+                if (stateData.getSkullOwner() != null && !stateData.getSkullOwner().isEmpty()) {
+                    String owner = stateData.getSkullOwner().replace("{player}", viewer != null ? viewer.getName() : "");
+                    skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+                } else if (stateData.getSkullTexture() != null && !stateData.getSkullTexture().isEmpty()) {
+                    dev.darkblade.playerfurnaces.util.ColorUtils.applySkullTexture(skullMeta, stateData.getSkullTexture());
+                }
+            }
+
             String name = stateData.getName();
             if (name != null && !name.isEmpty() && furnace != null) {
                 int pct = furnace.getTotalCookTime() > 0 ? (furnace.getCookTime() * 100) / furnace.getTotalCookTime() : 0;

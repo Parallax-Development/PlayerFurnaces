@@ -124,7 +124,7 @@ public class AdminCommand implements TabExecutor {
                 bypassPerms = true;
             }
 
-            boolean hasPerm = target.hasPermission("playerfurnaces.use." + furnaceId) || target.hasPermission("playerfurnaces.use.*");
+            boolean hasPerm = plugin.getFurnaceManager().hasPermissionForFurnace(target, furnaceId);
             if (!bypassPerms && !hasPerm) {
                 sender.sendMessage("§cPlayer does not have permission for furnace " + furnaceId + ". Use --bypass-perms to force.");
                 return true;
