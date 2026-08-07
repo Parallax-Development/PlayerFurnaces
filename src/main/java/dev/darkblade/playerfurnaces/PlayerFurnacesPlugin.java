@@ -44,7 +44,9 @@ public class PlayerFurnacesPlugin extends JavaPlugin {
 
         this.itemResolverRegistry = new ItemResolverRegistry();
         this.itemResolverRegistry.registerProvider(new VanillaItemProvider());
-        this.itemResolverRegistry.registerProvider(new CraftorithmItemProvider());
+        CraftorithmItemProvider craftorithmProvider = new CraftorithmItemProvider();
+        this.itemResolverRegistry.registerProvider(craftorithmProvider);
+        this.itemResolverRegistry.registerAlias("crafthorim", craftorithmProvider);
 
         this.recipeImporterRegistry = new RecipeImporterRegistry();
         this.recipeImporterRegistry.registerImporter(new CraftorithmRecipeImporter());

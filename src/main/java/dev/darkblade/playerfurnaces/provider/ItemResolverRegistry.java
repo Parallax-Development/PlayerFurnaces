@@ -13,6 +13,12 @@ public class ItemResolverRegistry {
         providers.put(provider.getNamespace().toLowerCase(), provider);
     }
 
+    public void registerAlias(String alias, ItemProvider provider) {
+        if (alias != null && provider != null) {
+            providers.put(alias.toLowerCase(), provider);
+        }
+    }
+
     public ItemProvider getProvider(String namespace) {
         return providers.get(namespace.toLowerCase());
     }

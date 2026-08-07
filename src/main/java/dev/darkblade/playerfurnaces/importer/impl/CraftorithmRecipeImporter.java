@@ -3,6 +3,7 @@ package dev.darkblade.playerfurnaces.importer.impl;
 import dev.darkblade.playerfurnaces.importer.ImportResult;
 import dev.darkblade.playerfurnaces.importer.RecipeImporter;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.CookingRecipe;
@@ -61,29 +62,47 @@ public class CraftorithmRecipeImporter implements RecipeImporter {
             String rootKey = "craftorithm_" + sanitizeKey(info.id);
 
             // Input section
-            config.set(rootKey + ".input.material", info.inputMaterial);
             if (info.inputId != null && !info.inputId.isEmpty()) {
                 config.set(rootKey + ".input.id", "craftorithm:" + info.inputId);
+            }
+            if (info.inputMaterial != null) {
+                config.set(rootKey + ".input.material", info.inputMaterial);
             }
             if (info.inputName != null && !info.inputName.isEmpty()) {
                 config.set(rootKey + ".input.name", info.inputName);
             }
+            if (info.inputLore != null && !info.inputLore.isEmpty()) {
+                config.set(rootKey + ".input.lore", info.inputLore);
+            }
             if (info.inputCustomModelData != null) {
                 config.set(rootKey + ".input.custom-model-data", info.inputCustomModelData);
+            }
+            if (info.inputPdc != null && !info.inputPdc.isEmpty()) {
+                for (Map.Entry<String, String> entry : info.inputPdc.entrySet()) {
+                    config.set(rootKey + ".input.pdc." + entry.getKey(), entry.getValue());
+                }
             }
 
             // Result section
             if (info.resultId != null && !info.resultId.isEmpty()) {
                 config.set(rootKey + ".result.id", "craftorithm:" + info.resultId);
-            } else {
+            } else if (info.resultMaterial != null) {
                 config.set(rootKey + ".result.material", info.resultMaterial);
             }
             config.set(rootKey + ".result.amount", info.resultAmount);
             if (info.resultName != null && !info.resultName.isEmpty()) {
                 config.set(rootKey + ".result.name", info.resultName);
             }
+            if (info.resultLore != null && !info.resultLore.isEmpty()) {
+                config.set(rootKey + ".result.lore", info.resultLore);
+            }
             if (info.resultCustomModelData != null) {
                 config.set(rootKey + ".result.custom-model-data", info.resultCustomModelData);
+            }
+            if (info.resultPdc != null && !info.resultPdc.isEmpty()) {
+                for (Map.Entry<String, String> entry : info.resultPdc.entrySet()) {
+                    config.set(rootKey + ".result.pdc." + entry.getKey(), entry.getValue());
+                }
             }
 
             // Cooking settings
@@ -143,13 +162,19 @@ public class CraftorithmRecipeImporter implements RecipeImporter {
                 }
 
                 boolean isCraftorithmRelated = key != null && (key.getNamespace().equalsIgnoreCase("craftorithm") || key.getNamespace().equalsIgnoreCase("crafthorim"));
-                
-                ItemStack resultItem = cookingRecipe.getResult();
-                RecipeChoice inputChoice = cookingRecipe.getInputChoice();
+
                 ItemStack inputStack = null;
+                RecipeChoice inputChoice = cookingRecipe.getInputChoice();
                 if (inputChoice instanceof RecipeChoice.ExactChoice exactChoice && !exactChoice.getChoices().isEmpty()) {
                     inputStack = exactChoice.getChoices().get(0);
+                } else if (inputChoice instanceof RecipeChoice.MaterialChoice materialChoice && !materialChoice.getChoices().isEmpty()) {
+                    Material mat = materialChoice.getChoices().get(0);
+                    inputStack = new ItemStack(mat);
+                } else if (cookingRecipe.getInput() != null) {
+                    inputStack = cookingRecipe.getInput();
                 }
+
+                ItemStack resultItem = cookingRecipe.getResult();
 
                 String inputCraftId = extractCraftorithmId(inputStack);
                 String resultCraftId = extractCraftorithmId(resultItem);
@@ -171,27 +196,17 @@ public class CraftorithmRecipeImporter implements RecipeImporter {
                 if (inputStack != null) {
                     info.inputMaterial = inputStack.getType().name();
                     info.inputId = inputCraftId;
-                    if (inputStack.hasItemMeta()) {
-                        var meta = inputStack.getItemMeta();
-                        if (meta.hasDisplayName()) info.inputName = meta.getDisplayName();
-                        if (meta.hasCustomModelData()) info.inputCustomModelData = meta.getCustomModelData();
-                    }
-                } else if (cookingRecipe.getInput() != null) {
-                    info.inputMaterial = cookingRecipe.getInput().getType().name();
+                    extractMetadata(inputStack, info, true);
                 }
 
                 if (resultItem != null) {
                     info.resultMaterial = resultItem.getType().name();
                     info.resultAmount = resultItem.getAmount();
                     info.resultId = resultCraftId;
-                    if (resultItem.hasItemMeta()) {
-                        var meta = resultItem.getItemMeta();
-                        if (meta.hasDisplayName()) info.resultName = meta.getDisplayName();
-                        if (meta.hasCustomModelData()) info.resultCustomModelData = meta.getCustomModelData();
-                    }
+                    extractMetadata(resultItem, info, false);
                 }
 
-                if (info.inputMaterial != null && info.resultMaterial != null) {
+                if (info.inputMaterial != null && (info.resultMaterial != null || info.resultId != null)) {
                     list.add(info);
                 }
             }
@@ -200,6 +215,44 @@ public class CraftorithmRecipeImporter implements RecipeImporter {
         }
 
         return list;
+    }
+
+    private void extractMetadata(ItemStack stack, RecipeInfo info, boolean isInput) {
+        if (stack == null || !stack.hasItemMeta()) return;
+        var meta = stack.getItemMeta();
+
+        if (meta.hasDisplayName()) {
+            if (isInput) info.inputName = meta.getDisplayName();
+            else info.resultName = meta.getDisplayName();
+        }
+
+        if (meta.hasLore() && meta.getLore() != null) {
+            if (isInput) info.inputLore = new ArrayList<>(meta.getLore());
+            else info.resultLore = new ArrayList<>(meta.getLore());
+        }
+
+        if (meta.hasCustomModelData()) {
+            if (isInput) info.inputCustomModelData = meta.getCustomModelData();
+            else info.resultCustomModelData = meta.getCustomModelData();
+        }
+
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        Map<String, String> pdcMap = new HashMap<>();
+        for (NamespacedKey key : pdc.getKeys()) {
+            if (key.getNamespace().equalsIgnoreCase("craftorithm") || key.getNamespace().equalsIgnoreCase("crafthorim")) {
+                continue;
+            }
+            try {
+                String val = pdc.get(key, PersistentDataType.STRING);
+                if (val != null) {
+                    pdcMap.put(key.toString(), val);
+                }
+            } catch (Exception ignored) {}
+        }
+        if (!pdcMap.isEmpty()) {
+            if (isInput) info.inputPdc = pdcMap;
+            else info.resultPdc = pdcMap;
+        }
     }
 
     private RecipeInfo parseObjectToRecipeInfo(Object obj) {
@@ -239,12 +292,16 @@ public class CraftorithmRecipeImporter implements RecipeImporter {
         String inputMaterial;
         String inputId;
         String inputName;
+        List<String> inputLore;
         Integer inputCustomModelData;
+        Map<String, String> inputPdc;
 
         String resultMaterial;
         String resultId;
         String resultName;
+        List<String> resultLore;
         Integer resultCustomModelData;
+        Map<String, String> resultPdc;
         int resultAmount = 1;
 
         int cookTimeTicks = 200;

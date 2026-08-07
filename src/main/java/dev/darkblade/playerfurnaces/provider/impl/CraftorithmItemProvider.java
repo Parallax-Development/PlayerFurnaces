@@ -31,7 +31,7 @@ public class CraftorithmItemProvider implements ItemProvider {
 
     @Override
     public String getNamespace() {
-        return "crafthorim";
+        return "craftorithm";
     }
 
     @Override
