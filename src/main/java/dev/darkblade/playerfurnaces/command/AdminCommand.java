@@ -4,6 +4,8 @@ import dev.darkblade.playerfurnaces.PlayerFurnacesPlugin;
 import dev.darkblade.playerfurnaces.engine.FurnaceEngine;
 import dev.darkblade.playerfurnaces.gui.FurnaceHubGui;
 import dev.darkblade.playerfurnaces.gui.FurnaceViewGui;
+import dev.darkblade.playerfurnaces.importer.ImportResult;
+import dev.darkblade.playerfurnaces.importer.RecipeImporter;
 import dev.darkblade.playerfurnaces.model.VirtualFurnace;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -15,6 +17,7 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +25,7 @@ import java.util.List;
 public class AdminCommand implements TabExecutor {
 
     private final PlayerFurnacesPlugin plugin;
-    private static final List<String> SUBCOMMANDS = List.of("reload", "view", "force-open");
+    private static final List<String> SUBCOMMANDS = List.of("reload", "view", "force-open", "import");
 
     public AdminCommand(PlayerFurnacesPlugin plugin) {
         this.plugin = plugin;
@@ -47,6 +50,37 @@ public class AdminCommand implements TabExecutor {
             plugin.getMessageManager().reloadMessages();
             plugin.getMenuManager().loadMenus();
             plugin.getMessageManager().sendMessage(sender, "reload-success");
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("import")) {
+            if (args.length < 2) {
+                plugin.getMessageManager().sendMessage(sender, "import-usage");
+                return true;
+            }
+
+            String pluginName = args[1];
+            boolean overwrite = args.length >= 3 && (args[2].equalsIgnoreCase("--overwrite") || args[2].equalsIgnoreCase("-f"));
+
+            RecipeImporter importer = plugin.getRecipeImporterRegistry().getImporter(pluginName);
+            if (importer == null || !importer.isAvailable()) {
+                plugin.getMessageManager().sendMessage(sender, "import-plugin-not-found", "{plugin}", pluginName);
+                return true;
+            }
+
+            File baseRecipesDir = new File(plugin.getDataFolder(), "recipes");
+            ImportResult result = importer.importRecipes(baseRecipesDir, overwrite);
+
+            if (!result.isSuccess()) {
+                sender.sendMessage("§cImport failed: " + result.getErrorMessage());
+                return true;
+            }
+
+            plugin.getRecipeManager().loadRecipes();
+            plugin.getMessageManager().sendMessage(sender, "import-success",
+                    "{plugin}", importer.getPluginName(),
+                    "{imported}", String.valueOf(result.getImportedCount()),
+                    "{skipped}", String.valueOf(result.getSkippedCount()));
             return true;
         }
 
@@ -152,6 +186,15 @@ public class AdminCommand implements TabExecutor {
 
         if (args.length == 1) {
             return StringUtil.copyPartialMatches(args[0], SUBCOMMANDS, new ArrayList<>());
+        }
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("import")) {
+            List<String> availablePlugins = plugin.getRecipeImporterRegistry().getAvailablePluginNames();
+            return StringUtil.copyPartialMatches(args[1], availablePlugins, new ArrayList<>());
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("import")) {
+            return StringUtil.copyPartialMatches(args[2], List.of("--overwrite", "-f"), new ArrayList<>());
         }
 
         if (args.length == 2 && (args[0].equalsIgnoreCase("view") || args[0].equalsIgnoreCase("force-open"))) {

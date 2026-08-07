@@ -14,10 +14,17 @@ admin-furnace-id-number: "&cFurnace ID must be an integer."
 admin-help:
   - "&e&lPlayerFurnaces Admin Commands:"
   - "&f/pfadmin view <player> [id] &7- View a player's furnace"
+  - "&f/pfadmin force-open <player> <id> &7- Force open a player's furnace"
+  - "&f/pfadmin import <plugin> [--overwrite] &7- Import recipes from external plugin"
   - "&f/pfadmin reload &7- Reload configuration and recipes"
+
+import-usage: "&cUsage: /pfa import <plugin> [--overwrite|-f]"
+import-plugin-not-found: "&cPlugin '{plugin}' is not installed, enabled, or supported for import."
+import-success: "&aSuccessfully imported {imported} recipes from {plugin} ({skipped} skipped)."
 
 collection:
   success: "&aSuccessfully collected processed items!"
   partial: "&eCollected partial production (inventory is full)."
+
 
 

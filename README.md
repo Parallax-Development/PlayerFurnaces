@@ -115,6 +115,7 @@ The plugin is designed with a modular, reactive architecture:
 | :--- | :--- | :--- |
 | `/pfadmin view <player> [id]` | `playerfurnaces.admin` | Inspects a player's hub or specific virtual furnace. |
 | `/pfadmin force-open <player> <id> [-b]` | `playerfurnaces.admin` | Forces a target player to open a furnace (checks target's furnace permission unless `--bypass-perms` is passed). |
+| `/pfadmin import <plugin> [-f]` | `playerfurnaces.admin` | Imports smelting recipes from external plugins (e.g. Craftorithm) into subfolder `recipes/<plugin>/`. |
 | `/pfadmin reload` | `playerfurnaces.admin` | Reloads `config.yml`, `messages.yml`, `menus.yml`, recipes, and fuels. |
 
 ### 🔑 Permission Nodes

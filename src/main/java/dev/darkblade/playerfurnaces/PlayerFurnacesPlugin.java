@@ -4,6 +4,8 @@ import dev.darkblade.playerfurnaces.command.AdminCommand;
 import dev.darkblade.playerfurnaces.command.PlayerFurnaceCommand;
 import dev.darkblade.playerfurnaces.database.DatabaseManager;
 import dev.darkblade.playerfurnaces.gui.GuiListener;
+import dev.darkblade.playerfurnaces.importer.RecipeImporterRegistry;
+import dev.darkblade.playerfurnaces.importer.impl.CraftorithmRecipeImporter;
 import dev.darkblade.playerfurnaces.listener.PlayerListener;
 import dev.darkblade.playerfurnaces.manager.FuelManager;
 import dev.darkblade.playerfurnaces.manager.FurnaceManager;
@@ -25,6 +27,7 @@ public class PlayerFurnacesPlugin extends JavaPlugin {
     private DatabaseManager databaseManager;
     private FurnaceManager furnaceManager;
     private ItemResolverRegistry itemResolverRegistry;
+    private RecipeImporterRegistry recipeImporterRegistry;
     private RecipeManager recipeManager;
     private FuelManager fuelManager;
     private MessageManager messageManager;
@@ -42,6 +45,9 @@ public class PlayerFurnacesPlugin extends JavaPlugin {
         this.itemResolverRegistry = new ItemResolverRegistry();
         this.itemResolverRegistry.registerProvider(new VanillaItemProvider());
         this.itemResolverRegistry.registerProvider(new CraftorithmItemProvider());
+
+        this.recipeImporterRegistry = new RecipeImporterRegistry();
+        this.recipeImporterRegistry.registerImporter(new CraftorithmRecipeImporter());
 
         this.recipeManager = new RecipeManager(this, itemResolverRegistry);
         this.recipeManager.loadRecipes();
@@ -122,6 +128,10 @@ public class PlayerFurnacesPlugin extends JavaPlugin {
 
     public ItemResolverRegistry getItemResolverRegistry() {
         return itemResolverRegistry;
+    }
+
+    public RecipeImporterRegistry getRecipeImporterRegistry() {
+        return recipeImporterRegistry;
     }
 
     public RecipeManager getRecipeManager() {

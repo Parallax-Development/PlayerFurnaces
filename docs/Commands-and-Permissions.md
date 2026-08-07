@@ -28,7 +28,10 @@ Reference manual listing all commands and permission nodes available in **Player
 2. **`/pfadmin force-open <player> <index> [--bypass-perms]`**
    * **Description**: Forces an online target player to open their specified virtual furnace index. Respects standard target furnace permissions (`playerfurnaces.furnace.<index>`) unless `--bypass-perms` (or `-b`) is passed.
    * **Example**: `/pfadmin force-open Steve 1` or `/pfadmin force-open Alex 3 --bypass-perms`
-3. **`/pfadmin reload`**
+3. **`/pfadmin import <plugin> [--overwrite|-f]`**
+   * **Description**: Imports custom smelting/cooking recipes from external plugins (such as Craftorithm) into individual YAML files inside `plugins/PlayerFurnaces/recipes/<plugin>/` and automatically triggers a hot reload. Use `--overwrite` or `-f` to overwrite pre-existing imported recipe files.
+   * **Example**: `/pfadmin import craftorithm` or `/pfadmin import craftorithm --overwrite`
+4. **`/pfadmin reload`**
    * **Description**: Hot reloads `config.yml`, `messages.yml`, `menus.yml`, as well as all recipe (`recipes/`) and fuel (`fuels/`) files.
 
 ---
