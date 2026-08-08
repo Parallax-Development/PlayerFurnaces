@@ -31,13 +31,16 @@ PlayerFurnaces queries its provider registry for a registered `ItemProvider` tha
 
 ---
 
-## 🛠️ Native Craftorithm Integration
+## 🛠️ Native Plugin Integrations
 
-PlayerFurnaces automatically connects with **Craftorithm** via reflection and native APIs:
-
-1. If the **Craftorithm** plugin is enabled on the server, `CraftorithmItemProvider` is automatically registered upon startup.
+### Craftorithm
+1. If the **Craftorithm** plugin is enabled on the server, `CraftorithmItemProvider` is automatically registered upon startup (`crafthorim:item_id` / `craftorithm:item_id`).
 2. Recipes using `crafthorim:item_id` receive original `ItemStack` objects from Craftorithm with all custom textures, attributes, and PDC tags intact.
-3. If an item stack cannot be directly constructed via API methods, the system performs a cross-check using tags in the item's `PersistentDataContainer` (`craftorithm:item_id`).
+
+### ExecutableItems
+1. If the **ExecutableItems** plugin is enabled on the server, `ExecutableItemsItemProvider` is automatically registered upon startup under `executableitems:item_id` and the shorthand alias `ei:item_id`.
+2. Resolves custom ExecutableItems via `ExecutableItemsAPI` with all custom abilities, textures, and PDC tags preserved.
+3. Allows overriding or decorating resulting item metadata (`name` with MiniMessage/HEX/& colors, `lore`, `custom-model-data`, `pdc`) via the recipe definition.
 
 ---
 

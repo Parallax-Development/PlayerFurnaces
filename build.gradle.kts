@@ -5,7 +5,7 @@ plugins {
 
 
 group = "dev.darkblade"
-version = "1.6.2"
+version = "1.7.2"
 
 
 repositories {

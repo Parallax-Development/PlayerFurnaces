@@ -14,6 +14,7 @@ import dev.darkblade.playerfurnaces.manager.MessageManager;
 import dev.darkblade.playerfurnaces.manager.RecipeManager;
 import dev.darkblade.playerfurnaces.provider.ItemResolverRegistry;
 import dev.darkblade.playerfurnaces.provider.impl.CraftorithmItemProvider;
+import dev.darkblade.playerfurnaces.provider.impl.ExecutableItemsItemProvider;
 import dev.darkblade.playerfurnaces.provider.impl.VanillaItemProvider;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -47,6 +48,10 @@ public class PlayerFurnacesPlugin extends JavaPlugin {
         CraftorithmItemProvider craftorithmProvider = new CraftorithmItemProvider();
         this.itemResolverRegistry.registerProvider(craftorithmProvider);
         this.itemResolverRegistry.registerAlias("crafthorim", craftorithmProvider);
+
+        ExecutableItemsItemProvider executableItemsProvider = new ExecutableItemsItemProvider();
+        this.itemResolverRegistry.registerProvider(executableItemsProvider);
+        this.itemResolverRegistry.registerAlias("ei", executableItemsProvider);
 
         this.recipeImporterRegistry = new RecipeImporterRegistry();
         this.recipeImporterRegistry.registerImporter(new CraftorithmRecipeImporter());

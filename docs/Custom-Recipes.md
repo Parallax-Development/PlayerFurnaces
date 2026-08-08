@@ -1,6 +1,6 @@
 # 🧪 Custom Recipes Guide (`recipes/*.yml`)
 
-**PlayerFurnaces** features a modular recipe engine allowing server owners to override vanilla furnace recipes or create completely custom recipes using `.yml` files placed inside `plugins/PlayerFurnaces/recipes/`.
+**PlayerFurnaces** features a modular recipe engine allowing server owners to override vanilla furnace recipes or create completely custom recipes using `.yml` files placed inside `plugins/PlayerFurnaces/recipes/` (including subdirectories).
 
 ---
 

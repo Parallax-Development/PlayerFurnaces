@@ -7,6 +7,7 @@ import dev.darkblade.playerfurnaces.model.CustomRecipe;
 import dev.darkblade.playerfurnaces.model.RecipeItemDefinition;
 import dev.darkblade.playerfurnaces.model.VirtualFurnace;
 import dev.darkblade.playerfurnaces.provider.ItemResolverRegistry;
+import dev.darkblade.playerfurnaces.util.RecipeItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.CookingRecipe;
 import org.bukkit.inventory.ItemStack;
@@ -57,11 +58,7 @@ public class FurnaceEngine {
                 totalCookTicks = customRecipe.getCookTimeTicks();
                 RecipeItemDefinition resDef = customRecipe.getResult();
                 if (resDef != null) {
-                    if (resDef.getId() != null && resDef.getId().contains(":") && itemResolverRegistry != null) {
-                        result = itemResolverRegistry.resolveItem(resDef.getId(), resDef.getAmount());
-                    } else if (resDef.getMaterial() != null) {
-                        result = new ItemStack(resDef.getMaterial(), resDef.getAmount());
-                    }
+                    result = RecipeItemBuilder.build(resDef, itemResolverRegistry);
                 }
             } else {
                 boolean isVanillaEnabled = recipeManager == null || (recipeManager.isVanillaSmeltingEnabled() && !recipeManager.isVanillaMaterialDisabled(input.getType()));
