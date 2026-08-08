@@ -9,7 +9,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class FuelManager {
 
@@ -29,8 +32,19 @@ public class FuelManager {
             fuelsDir.mkdirs();
         }
 
-        File[] files = fuelsDir.listFiles((dir, name) -> name.endsWith(".yml") || name.endsWith(".yaml"));
-        if (files == null) return;
+        List<File> files = new ArrayList<>();
+        try (Stream<Path> stream = Files.walk(fuelsDir.toPath())) {
+            stream.filter(Files::isRegularFile)
+                    .filter(path -> {
+                        String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
+                        return name.endsWith(".yml") || name.endsWith(".yaml");
+                    })
+                    .map(Path::toFile)
+                    .forEach(files::add);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error reading fuels directory: " + e.getMessage());
+            return;
+        }
 
         int skippedCount = 0;
         for (File file : files) {

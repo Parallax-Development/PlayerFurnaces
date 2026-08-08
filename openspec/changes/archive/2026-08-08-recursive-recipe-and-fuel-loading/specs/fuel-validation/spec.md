@@ -1,8 +1,5 @@
-# fuel-validation Specification
+## MODIFIED Requirements
 
-## Purpose
-Specification for custom fuel type validation, including Bukkit material verification and third-party item provider namespace checking during plugin startup and reload.
-## Requirements
 ### Requirement: Fuel Material and Item Provider Validation
 The system SHALL validate fuel type identifiers (including Bukkit materials and third-party item provider IDs) during fuel configuration file loading across `plugins/PlayerFurnaces/fuels/` and any of its subdirectories, logging descriptive warnings for invalid entries.
 
@@ -17,4 +14,3 @@ The system SHALL validate fuel type identifiers (including Bukkit materials and 
 #### Scenario: Loading fuel files in nested subfolders
 - **WHEN** custom fuel YAML files exist inside subdirectories of `plugins/PlayerFurnaces/fuels/` (e.g. `fuels/custom/magic.yml`)
 - **THEN** the system recursively traverses the directory tree and registers all valid fuel files.
-
