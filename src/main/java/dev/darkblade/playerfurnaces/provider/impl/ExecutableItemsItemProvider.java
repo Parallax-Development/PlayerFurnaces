@@ -7,26 +7,62 @@ import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
-import java.util.logging.Level;
 
 public class ExecutableItemsItemProvider implements ItemProvider {
 
     private boolean available = false;
-    private Method getExecutableItemMethod;
+    private Object targetInstance = null;
+    private Method getExecutableItemMethod = null;
 
     public ExecutableItemsItemProvider() {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("ExecutableItems");
-        if (plugin != null && plugin.isEnabled()) {
-            try {
-                Class<?> apiClass = Class.forName("com.ssomar.score.api.executableitems.ExecutableItemsAPI");
-                getExecutableItemMethod = apiClass.getMethod("getExecutableItem", String.class);
-                available = true;
-            } catch (ClassNotFoundException e) {
-                available = false;
-            } catch (Exception e) {
-                Bukkit.getLogger().log(Level.WARNING, "[PlayerFurnaces] Error hooking into ExecutableItems: " + e.getMessage());
-            }
+        if (plugin == null || !plugin.isEnabled()) {
+            return;
         }
+
+        // Strategy 1: ExecutableItemsAPI.getExecutableItemsManager().getExecutableItem(id)
+        try {
+            Class<?> apiClass = Class.forName("com.ssomar.score.api.executableitems.ExecutableItemsAPI");
+            Method getManagerMethod = apiClass.getMethod("getExecutableItemsManager");
+            Object manager = getManagerMethod.invoke(null);
+            if (manager != null) {
+                Method getItemMethod = manager.getClass().getMethod("getExecutableItem", String.class);
+                this.targetInstance = manager;
+                this.getExecutableItemMethod = getItemMethod;
+                this.available = true;
+                return;
+            }
+        } catch (Exception ignored) {
+        }
+
+        // Strategy 2: ExecutableItemsAPI.getExecutableItem(id) static method
+        try {
+            Class<?> apiClass = Class.forName("com.ssomar.score.api.executableitems.ExecutableItemsAPI");
+            Method getItemMethod = apiClass.getMethod("getExecutableItem", String.class);
+            this.targetInstance = null;
+            this.getExecutableItemMethod = getItemMethod;
+            this.available = true;
+            return;
+        } catch (Exception ignored) {
+        }
+
+        // Strategy 3: ExecutableItemsManager.getInstance().getExecutableItem(id)
+        try {
+            Class<?> managerClass = Class.forName("com.ssomar.score.executableitems.ExecutableItemsManager");
+            Method getInstanceMethod = managerClass.getMethod("getInstance");
+            Object manager = getInstanceMethod.invoke(null);
+            if (manager != null) {
+                Method getItemMethod = manager.getClass().getMethod("getExecutableItem", String.class);
+                this.targetInstance = manager;
+                this.getExecutableItemMethod = getItemMethod;
+                this.available = true;
+                return;
+            }
+        } catch (Exception ignored) {
+        }
+
+        // Strategy 4: Fallback PDC matching if API methods are non-existent
+        this.available = false;
     }
 
     @Override
@@ -36,16 +72,18 @@ public class ExecutableItemsItemProvider implements ItemProvider {
 
     @Override
     public ItemStack getItem(String id, int amount) {
-        if (!available || id == null || id.trim().isEmpty()) {
+        if (!available || getExecutableItemMethod == null || id == null || id.trim().isEmpty()) {
             return null;
         }
 
         try {
-            Object result = getExecutableItemMethod.invoke(null, id.trim());
-            if (result instanceof Optional<?> opt && opt.isPresent()) {
-                Object execItem = opt.get();
+            Object result = getExecutableItemMethod.invoke(targetInstance, id.trim());
+            if (result instanceof Optional<?> opt) {
+                result = opt.orElse(null);
+            }
+            if (result != null) {
                 Method buildMethod = null;
-                for (Method m : execItem.getClass().getMethods()) {
+                for (Method m : result.getClass().getMethods()) {
                     if (m.getName().equals("buildItem")) {
                         buildMethod = m;
                         break;
@@ -54,9 +92,9 @@ public class ExecutableItemsItemProvider implements ItemProvider {
                 if (buildMethod != null) {
                     Object itemStackObj = null;
                     if (buildMethod.getParameterCount() == 2) {
-                        itemStackObj = buildMethod.invoke(execItem, amount, Optional.empty());
+                        itemStackObj = buildMethod.invoke(result, amount, Optional.empty());
                     } else if (buildMethod.getParameterCount() == 1) {
-                        itemStackObj = buildMethod.invoke(execItem, amount);
+                        itemStackObj = buildMethod.invoke(result, amount);
                     }
                     if (itemStackObj instanceof ItemStack itemStack) {
                         ItemStack copy = itemStack.clone();
@@ -85,7 +123,7 @@ public class ExecutableItemsItemProvider implements ItemProvider {
             var pdc = itemStack.getItemMeta().getPersistentDataContainer();
             for (var key : pdc.getKeys()) {
                 String ns = key.getNamespace().toLowerCase();
-                if (ns.contains("executableitem") || ns.equalsIgnoreCase("ei")) {
+                if (ns.contains("executableitem") || ns.equalsIgnoreCase("ei") || ns.contains("ssomar")) {
                     String value = pdc.get(key, org.bukkit.persistence.PersistentDataType.STRING);
                     if (id.equalsIgnoreCase(value)) {
                         return true;
